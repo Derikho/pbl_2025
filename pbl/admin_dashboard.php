@@ -20,29 +20,25 @@ $user = new User($db);
 $activity = new Activity($db);
 $booking = new Booking($db);
 
-// Get statistics
 $total_users = $user->getTotalUsers();
 $total_activities = $activity->getTotalActivities();
 $active_bookings = $booking->getActiveBookings();
 ?>
 
-<!-- Admin Navbar -->
 <nav class="navbar navbar-expand-lg navbar-admin sticky-top">
     <div class="container-fluid">
-        <a class="navbar-brand" href="admin_dashboard.php">
+        <a class="navbar-brand text-white" href="admin_dashboard.php">
             <div class="admin-logo">
                 <i class="fas fa-crown me-2"></i>
                 <span>Admin Panel</span>
             </div>
         </a>
-        
         <div class="navbar-actions ms-auto">
-            <div class="admin-info me-3">
+            <div class="admin-info me-3 text-white">
                 <i class="fas fa-user-shield me-1"></i>
                 <span class="admin-name"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
-                <small class="badge bg-warning">Admin</small>
             </div>
-            <a href="logout.php" class="btn btn-logout">
+            <a href="logout.php" class="btn btn-sm btn-outline-light">
                 <i class="fas fa-sign-out-alt me-1"></i>Logout
             </a>
         </div>
@@ -60,6 +56,9 @@ $active_bookings = $booking->getActiveBookings();
                     <i class="fas fa-tachometer-alt me-2"></i>
                     <span>Dashboard</span>
                 </a>
+            </li>
+            <li class="menu-item">
+                <a href="admin_users.php"><i class="fas fa-users-cog me-2"></i><span>Users</span></a>
             </li>
             <li class="menu-item">
                 <a href="admin_partners.php">
@@ -109,12 +108,6 @@ $active_bookings = $booking->getActiveBookings();
                     <span>Absent</span>
                 </a>
             </li>
-            <li class="menu-item">
-                <a href="admin_settings.php">
-                    <i class="fas fa-cog me-2"></i>
-                    <span>Settings</span>
-                </a>
-            </li>
         </ul>
     </div>
 
@@ -124,7 +117,6 @@ $active_bookings = $booking->getActiveBookings();
             <p>Welcome back, <?php echo htmlspecialchars($_SESSION['username']); ?>!</p>
         </div>
 
-        <!-- Statistics Cards -->
         <div class="row mb-4">
             <div class="col-md-3 mb-3">
                 <div class="stats-card">
@@ -172,7 +164,6 @@ $active_bookings = $booking->getActiveBookings();
             </div>
         </div>
 
-        <!-- Recent Activities -->
         <div class="row">
             <div class="col-md-8">
                 <div class="card">
@@ -231,10 +222,6 @@ $active_bookings = $booking->getActiveBookings();
                                 <i class="fas fa-calendar"></i>
                                 <span>Manage Bookings</span>
                             </a>
-                            <a href="admin_settings.php" class="action-btn">
-                                <i class="fas fa-cog"></i>
-                                <span>System Settings</span>
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -242,5 +229,12 @@ $active_bookings = $booking->getActiveBookings();
         </div>
     </div>
 </div>
-
+<style>
+    .sidebar-header {
+    text-align: center;
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 1rem;
+}
+</style>
 <?php include_once 'includes/footer.php'; ?>

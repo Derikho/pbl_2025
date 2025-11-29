@@ -15,52 +15,60 @@ class Gallery {
         $this->conn = $db;
     }
 
-    // Create new gallery item
+    public function read() {
+        $query = "SELECT gallery_id as id, title, description, image_url, category, status, created_at 
+                  FROM " . $this->table_name . " 
+                  ORDER BY created_at DESC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt;
+    }
+
     public function create() {
         $query = "INSERT INTO " . $this->table_name . " 
-                  SET title=:title, description=:description, image_url=:image_url, 
-                      category=:category, status=:status";
+                  (title, description, image_url, category, status) 
+                  VALUES (:title, :description, :image_url, :category, :status)";
         
         $stmt = $this->conn->prepare($query);
         
-        // Sanitize input
+        // Sanitize
         $this->title = htmlspecialchars(strip_tags($this->title));
         $this->description = htmlspecialchars(strip_tags($this->description));
         $this->image_url = htmlspecialchars(strip_tags($this->image_url));
         $this->category = htmlspecialchars(strip_tags($this->category));
         $this->status = htmlspecialchars(strip_tags($this->status));
         
-        // Bind parameters
+        // Bind Parameters
         $stmt->bindParam(":title", $this->title);
         $stmt->bindParam(":description", $this->description);
         $stmt->bindParam(":image_url", $this->image_url);
         $stmt->bindParam(":category", $this->category);
         $stmt->bindParam(":status", $this->status);
         
-        if($stmt->execute()) {
-            return true;
+        try {
+            if($stmt->execute()) {
+                return true;
+            }
+            $errorInfo = $stmt->errorInfo();
+            error_log("Gallery Create Error: " . print_r($errorInfo, true));
+            return false;
+        } catch(PDOException $e) {
+            error_log("Gallery Create Exception: " . $e->getMessage());
+            echo "Database Error: " . $e->getMessage();
+            return false;
         }
-        return false;
     }
 
-    // Read all gallery items
-    public function read() {
-        $query = "SELECT * FROM " . $this->table_name . " ORDER BY created_at DESC";
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute();
-        return $stmt;
-    }
-
-    // Update gallery item
     public function update() {
         $query = "UPDATE " . $this->table_name . " 
                   SET title=:title, description=:description, image_url=:image_url, 
                       category=:category, status=:status 
-                  WHERE id=:id";
+                  WHERE gallery_id=:id"; 
         
         $stmt = $this->conn->prepare($query);
         
-        // Sanitize input
+        // Sanitize
         $this->title = htmlspecialchars(strip_tags($this->title));
         $this->description = htmlspecialchars(strip_tags($this->description));
         $this->image_url = htmlspecialchars(strip_tags($this->image_url));
@@ -68,7 +76,7 @@ class Gallery {
         $this->status = htmlspecialchars(strip_tags($this->status));
         $this->id = htmlspecialchars(strip_tags($this->id));
         
-        // Bind parameters
+        // Bind Parameters
         $stmt->bindParam(":title", $this->title);
         $stmt->bindParam(":description", $this->description);
         $stmt->bindParam(":image_url", $this->image_url);
@@ -76,37 +84,49 @@ class Gallery {
         $stmt->bindParam(":status", $this->status);
         $stmt->bindParam(":id", $this->id);
         
-        if($stmt->execute()) {
-            return true;
+        try {
+            if($stmt->execute()) {
+                return true;
+            }
+            $errorInfo = $stmt->errorInfo();
+            error_log("Gallery Update Error: " . print_r($errorInfo, true));
+            return false;
+        } catch(PDOException $e) {
+            error_log("Gallery Update Exception: " . $e->getMessage());
+            return false;
         }
-        return false;
     }
 
-    // Delete gallery item
     public function delete() {
-        $query = "DELETE FROM " . $this->table_name . " WHERE id = ?";
+        $query = "DELETE FROM " . $this->table_name . " WHERE gallery_id = :id";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $this->id);
         
-        if($stmt->execute()) {
-            return true;
+        $this->id = htmlspecialchars(strip_tags($this->id));
+        $stmt->bindParam(":id", $this->id);
+        
+        try {
+            if($stmt->execute()) {
+                return true;
+            }
+            return false;
+        } catch(PDOException $e) {
+            error_log("Gallery Delete Exception: " . $e->getMessage());
+            return false;
         }
-        return false;
     }
 
-    // Get gallery items by category
-    public function readByCategory($category) {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE category = ? ORDER BY created_at DESC";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $category);
-        $stmt->execute();
-        return $stmt;
-    }
-
-    // Get total gallery items count
     public function getTotalGalleryItems() {
         $query = "SELECT COUNT(*) as total FROM " . $this->table_name;
         $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row['total'];
+    }
+
+    public function getCountByCategory($category) {
+        $query = "SELECT COUNT(*) as total FROM " . $this->table_name . " WHERE category = :category";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':category', $category);
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row['total'];

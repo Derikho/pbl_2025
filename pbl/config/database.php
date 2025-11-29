@@ -13,7 +13,6 @@ class Database {
             $dsn = "pgsql:host=" . $this->host . ";port=" . $this->port . ";dbname=" . $this->db_name;
             $this->conn = new PDO($dsn, $this->username, $this->password);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            echo "Connected to PostgreSQL successfully!";
         } catch(PDOException $exception) {
             echo "Connection error: " . $exception->getMessage();
         }

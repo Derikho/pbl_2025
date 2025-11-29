@@ -3,17 +3,23 @@ $page_title = "LET Lab - Home";
 include_once 'includes/header.php';
 include_once 'includes/navbar.php';
 
-// Include database and models
 include_once 'config/database.php';
-include_once 'models/Activity.php';
+include_once 'models/News.php';
+include_once 'models/Partner.php';
 
-// Database connection
+include_once 'models/Products.php'; 
+
 $database = new Database();
 $db = $database->getConnection();
 
-// Get recent activities
-$activity = new Activity($db);
-$recent_activities = $activity->getRecentActivities(3);
+$news = new News($db);
+$recent_news = $news->read();
+
+$product = new Product($db);
+$products = $product->read();
+
+$partner = new Partner($db);
+$partners = $partner->read();
 ?>
 
 <!-- Hero Section -->
@@ -41,7 +47,6 @@ $recent_activities = $activity->getRecentActivities(3);
     </div>
 </section>
 
-<!-- Research Section -->
 <section id="research" class="py-5 bg-light">
     <div class="container">
         <h2 class="text-center mb-5">Penelitian Kami</h2>
@@ -74,82 +79,140 @@ $recent_activities = $activity->getRecentActivities(3);
     </div>
 </section>
 
-<!-- Team Section -->
+<!-- Partners Section -->
 <section class="py-5">
     <div class="container">
-        <h2 class="text-center mb-5">Tim Kami</h2>
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Audi</h5>
-                        <p class="card-text">Promotion & Service, Network and Innovation (SMILE)</p>
+        <h2 class="text-center mb-5">Partner Kami</h2>
+        <div class="row justify-content-center">
+            <?php 
+            $count = 0;
+            while($row = $partners->fetch(PDO::FETCH_ASSOC)): 
+                if($row['status'] == 'active' && $count < 6):
+                    $count++;
+            ?>
+            <div class="col-6 col-md-4 col-lg-2 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body d-flex align-items-center justify-content-center p-3">
+                        <?php if(!empty($row['logo'])): ?>
+                            <img src="<?php echo htmlspecialchars($row['logo']); ?>" 
+                                 alt="<?php echo htmlspecialchars($row['name']); ?>" 
+                                 class="img-fluid" 
+                                 style="max-height: 60px; object-fit: contain;">
+                        <?php else: ?>
+                            <div class="text-center">
+                                <i class="fas fa-handshake fa-2x text-muted mb-2"></i>
+                                <small class="d-block"><?php echo htmlspecialchars($row['name']); ?></small>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Tamahiro</h5>
-                        <p class="card-text">Advanced & Bio-Micro Automation (SMILE)</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Mingi</h5>
-                        <p class="card-text">Technical Development & Business Development</p>
-                    </div>
-                </div>
-            </div>
+            <?php 
+                endif;
+            endwhile; 
+            ?>
         </div>
     </div>
 </section>
 
-<!-- Activities Section -->
-<section id="activities" class="py-5 bg-light">
+<!-- News Section (Berita/Artikel Terbaru) -->
+<section id="news" class="py-5 bg-light">
     <div class="container">
-        <h2 class="text-center mb-5">Aktivitas Penelitian Terbaru</h2>
+        <h2 class="text-center mb-5">Berita & Artikel Terbaru</h2>
         <div class="row">
-            <?php while($row = $recent_activities->fetch(PDO::FETCH_ASSOC)): ?>
-            <div class="col-md-6 mb-4">
-                <div class="card">
+            <?php 
+            $count = 0;
+            while($article = $recent_news->fetch(PDO::FETCH_ASSOC)): 
+                if($article['status'] == 'published' && $count < 3):
+                    $count++;
+            ?>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <?php if(!empty($article['image_url'])): ?>
+                        <img src="<?php echo htmlspecialchars($article['image_url']); ?>" 
+                             class="card-img-top" 
+                             alt="<?php echo htmlspecialchars($article['title']); ?>"
+                             style="height: 200px; object-fit: cover;">
+                    <?php else: ?>
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-newspaper fa-3x text-muted"></i>
+                        </div>
+                    <?php endif; ?>
                     <div class="card-body">
-                        <h5 class="card-title"><?php echo htmlspecialchars($row['activity_type']); ?></h5>
-                        <p class="card-text"><?php echo htmlspecialchars($row['description']); ?></p>
-                        <small class="text-muted">Oleh: <?php echo htmlspecialchars($row['username']); ?> | <?php echo date('d M Y', strtotime($row['created_at'])); ?></small>
+                        <span class="badge bg-primary mb-2"><?php echo htmlspecialchars($article['category']); ?></span>
+                        <h5 class="card-title"><?php echo htmlspecialchars($article['title']); ?></h5>
+                        <p class="card-text text-muted small">
+                            <?php echo htmlspecialchars(substr(strip_tags($article['content']), 0, 100)); ?>...
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="far fa-calendar"></i> 
+                                <?php echo date('d M Y', strtotime($article['publish_date'])); ?>
+                            </small>
+                            <a href="news_detail.php?id=<?php echo $article['id']; ?>" class="btn btn-sm btn-outline-primary">
+                                Baca Selengkapnya
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
-            <?php endwhile; ?>
+            <?php 
+                endif;
+            endwhile; 
+            ?>
+        </div>
+        <div class="text-center mt-4">
+            <a href="news.php" class="btn btn-primary">Lihat Semua Berita</a>
         </div>
     </div>
 </section>
 
-<!-- Store Section -->
+<!-- Products Section -->
 <section id="store" class="py-5">
     <div class="container">
-        <h2 class="text-center mb-5">Aplikasi Pembelajaran</h2>
+        <h2 class="text-center mb-5">Produk & Aplikasi Pembelajaran</h2>
         <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="card">
+            <?php 
+            $count = 0;
+            while($prod = $products->fetch(PDO::FETCH_ASSOC)): 
+                if($prod['status'] == 'active' && $count < 4):
+                    $count++;
+            ?>
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <?php if(!empty($prod['image_url'])): ?>
+                        <img src="<?php echo htmlspecialchars($prod['image_url']); ?>" 
+                             class="card-img-top" 
+                             alt="<?php echo htmlspecialchars($prod['name']); ?>"
+                             style="height: 180px; object-fit: cover;">
+                    <?php else: ?>
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                            <i class="fas fa-box fa-3x text-muted"></i>
+                        </div>
+                    <?php endif; ?>
                     <div class="card-body">
-                        <h5 class="card-title">Viat Map Application</h5>
-                        <p class="card-text">Aplikasi VIAT-map (Visual Arguments Toulmin) membantu membaca pemahaman dengan menggunakan Konsep Argument Toulmin.</p>
-                        <a href="#" class="btn btn-primary">Coba Sekarang</a>
+                        <span class="badge bg-info text-dark mb-2"><?php echo htmlspecialchars($prod['category']); ?></span>
+                        <h5 class="card-title"><?php echo htmlspecialchars($prod['name']); ?></h5>
+                        <p class="card-text text-muted small">
+                            <?php echo htmlspecialchars(substr($prod['description'], 0, 80)); ?>...
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <?php if($prod['price'] > 0): ?>
+                                <strong class="text-primary">$<?php echo number_format($prod['price'], 2); ?></strong>
+                            <?php else: ?>
+                                <span class="badge bg-success">Gratis</span>
+                            <?php endif; ?>
+                            <a href="product_detail.php?id=<?php echo $prod['id']; ?>" class="btn btn-sm btn-primary">
+                                Lihat Detail
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">PseudoLearn Application</h5>
-                        <p class="card-text">Media pembelajaran rekonstruksi algoritma pseudocode dengan menggunakan pendekatan Element Fill-in-Blank Problems dalam pemrograman Java.</p>
-                        <a href="#" class="btn btn-primary">Coba Sekarang</a>
-                    </div>
-                </div>
-            </div>
+            <?php 
+                endif;
+            endwhile; 
+            ?>
         </div>
     </div>
 </section>
@@ -161,7 +224,7 @@ $recent_activities = $activity->getRecentActivities(3);
         <div class="row">
             <div class="col-md-4 mb-4">
                 <div class="card">
-                    <img src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="card-img-top" alt="Conference">
+                    <img src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="card-img-top" alt="Conference" style="height: 250px; object-fit: cover;">
                     <div class="card-body">
                         <h5 class="card-title">ICCE 2024</h5>
                         <p class="card-text">International Conference on Computers in Education</p>
@@ -170,7 +233,7 @@ $recent_activities = $activity->getRecentActivities(3);
             </div>
             <div class="col-md-4 mb-4">
                 <div class="card">
-                    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="card-img-top" alt="Research">
+                    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="card-img-top" alt="Research" style="height: 250px; object-fit: cover;">
                     <div class="card-body">
                         <h5 class="card-title">Penelitian Lapangan</h5>
                         <p class="card-text">Aktivitas penelitian di lingkungan pendidikan nyata</p>
@@ -179,13 +242,16 @@ $recent_activities = $activity->getRecentActivities(3);
             </div>
             <div class="col-md-4 mb-4">
                 <div class="card">
-                    <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="card-img-top" alt="Workshop">
+                    <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="card-img-top" alt="Workshop" style="height: 250px; object-fit: cover;">
                     <div class="card-body">
                         <h5 class="card-title">Workshop Pembelajaran</h5>
                         <p class="card-text">Sesi workshop untuk guru dan pendidik</p>
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="gallery.php" class="btn btn-primary">Lihat Semua Galeri</a>
         </div>
     </div>
 </section>

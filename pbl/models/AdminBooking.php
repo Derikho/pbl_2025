@@ -16,7 +16,6 @@ class AdminBooking {
         $this->conn = $db;
     }
 
-    // Get all bookings with user information
     public function getAllBookings() {
         $query = "SELECT b.*, u.username as user_name, u.email as user_email 
                   FROM " . $this->table_name . " b 

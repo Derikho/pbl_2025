@@ -2,13 +2,11 @@
 $page_title = "LET Lab - Dashboard";
 include_once 'includes/header.php';
 
-// Check if user is logged in
 if(!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true){
     header("location: login.php");
     exit;
 }
 
-// Include database and models
 include_once 'config/database.php';
 include_once 'models/User.php';
 include_once 'models/Activity.php';

@@ -63,9 +63,15 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         <i class="fas fa-user-circle me-1"></i>
                         <span class="username"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
                     </div>
-                    <a href="dashboard.php" class="btn btn-nav me-2">
+                    
+                    <?php 
+                    $link_tujuan = (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') ? 'admin_dashboard.php' : 'dashboard.php';
+                    ?>
+
+                    <a href="<?php echo $link_tujuan; ?>" class="btn btn-nav me-2">
                         <i class="fas fa-tachometer-alt me-1"></i>Dashboard
                     </a>
+
                     <a href="logout.php" class="btn btn-nav-outline">
                         <i class="fas fa-sign-out-alt me-1"></i>Logout
                     </a>
