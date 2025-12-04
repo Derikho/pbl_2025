@@ -17,11 +17,12 @@ class Attendance {
     }
 
     public function read($date = null) {
+        // PERBAIKAN: u.nim diganti u.identification_number
         $query = "SELECT 
                     al.log_id as id,
                     al.user_id,
                     u.full_name as name,
-                    u.nim,
+                    u.identification_number, 
                     u.institution as kelas,
                     al.date,
                     al.check_in_time,
@@ -58,8 +59,8 @@ class Attendance {
         // Sanitize
         $this->user_id = (int)$this->user_id;
         $this->date = htmlspecialchars(strip_tags($this->date));
-        $this->check_in_time = htmlspecialchars(strip_tags($this->check_in_time));
-        $this->check_out_time = htmlspecialchars(strip_tags($this->check_out_time));
+        $this->check_in_time = !empty($this->check_in_time) ? htmlspecialchars(strip_tags($this->check_in_time)) : null;
+        $this->check_out_time = !empty($this->check_out_time) ? htmlspecialchars(strip_tags($this->check_out_time)) : null;
         $this->photo_proof = htmlspecialchars(strip_tags($this->photo_proof));
         $this->location_note = htmlspecialchars(strip_tags($this->location_note));
 
@@ -75,8 +76,6 @@ class Attendance {
             if($stmt->execute()) {
                 return true;
             }
-            $errorInfo = $stmt->errorInfo();
-            error_log("Attendance Create Error: " . print_r($errorInfo, true));
             return false;
         } catch(PDOException $e) {
             error_log("Attendance Create Exception: " . $e->getMessage());
@@ -96,16 +95,14 @@ class Attendance {
 
         $stmt = $this->conn->prepare($query);
 
-        // Sanitize
         $this->id = (int)$this->id;
         $this->user_id = (int)$this->user_id;
         $this->date = htmlspecialchars(strip_tags($this->date));
-        $this->check_in_time = htmlspecialchars(strip_tags($this->check_in_time));
-        $this->check_out_time = htmlspecialchars(strip_tags($this->check_out_time));
+        $this->check_in_time = !empty($this->check_in_time) ? htmlspecialchars(strip_tags($this->check_in_time)) : null;
+        $this->check_out_time = !empty($this->check_out_time) ? htmlspecialchars(strip_tags($this->check_out_time)) : null;
         $this->photo_proof = htmlspecialchars(strip_tags($this->photo_proof));
         $this->location_note = htmlspecialchars(strip_tags($this->location_note));
 
-        // Bind Parameters
         $stmt->bindParam(':user_id', $this->user_id);
         $stmt->bindParam(':date', $this->date);
         $stmt->bindParam(':check_in_time', $this->check_in_time);
@@ -128,19 +125,9 @@ class Attendance {
     public function delete() {
         $query = "DELETE FROM " . $this->table_name . " WHERE log_id = :id";
         $stmt = $this->conn->prepare($query);
-        
         $this->id = (int)$this->id;
         $stmt->bindParam(':id', $this->id);
-
-        try {
-            if($stmt->execute()) {
-                return true;
-            }
-            return false;
-        } catch(PDOException $e) {
-            error_log("Attendance Delete Exception: " . $e->getMessage());
-            return false;
-        }
+        return $stmt->execute();
     }
 
     public function getStats($date = null) {
@@ -160,47 +147,6 @@ class Attendance {
         $stmt->execute();
         
         return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-    // --- FUNGSI PRESENSI MAHASISWA (UPDATE FOTO) ---
-    public function checkIn() {
-        // 1. Cek apakah hari ini sudah absen?
-        $queryCheck = "SELECT log_id FROM " . $this->table_name . " 
-                       WHERE user_id = :uid AND date = CURRENT_DATE";
-        $stmtCheck = $this->conn->prepare($queryCheck);
-        $stmtCheck->bindParam(':uid', $this->user_id);
-        $stmtCheck->execute();
-
-        if($stmtCheck->rowCount() > 0){
-            return "already_checked_in"; 
-        }
-
-        $query = "INSERT INTO " . $this->table_name . " 
-                  (user_id, date, check_in_time, location_note, photo_url, status) 
-                  VALUES (:uid, CURRENT_DATE, CURRENT_TIME, :note, :photo, 'Hadir')";
-
-        $stmt = $this->conn->prepare($query);
-
-        $this->location_note = htmlspecialchars(strip_tags($this->location_note));
-        $this->photo_url = htmlspecialchars(strip_tags($this->photo_url));
-
-        $stmt->bindParam(':uid', $this->user_id);
-        $stmt->bindParam(':note', $this->location_note);
-        $stmt->bindParam(':photo', $this->photo_url);
-
-        if($stmt->execute()) {
-            return "success";
-        }
-        return "failed";
-    }
-
-    public function getTotalToday() {
-        $today = date('Y-m-d');
-        $query = "SELECT COUNT(*) as total FROM " . $this->table_name . " WHERE date = :today";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':today', $today);
-        $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row['total'];
     }
 }
 ?>

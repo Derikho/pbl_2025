@@ -2,6 +2,7 @@
 $page_title = "Manage Partners - LET Lab Admin";
 include_once 'includes/header.php';
 
+// Pastikan session aktif
 if(!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true || $_SESSION['role'] !== 'admin'){
     echo "<script>window.location.href='login.php';</script>";
     exit;
@@ -18,8 +19,36 @@ $show_form = false;
 $edit_mode = false;
 $edit_data = null;
 
+// --- FUNGSI HELPER UPLOAD GAMBAR ---
+function uploadImage($fileInputName, $targetDir = "uploads/partners/") {
+    // Cek apakah folder tujuan ada, jika tidak buat foldernya
+    if (!file_exists($targetDir)) {
+        mkdir($targetDir, 0777, true);
+    }
+
+    $fileName = basename($_FILES[$fileInputName]["name"]);
+    $imageFileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    
+    // Generate nama file unik agar tidak bentrok (timestamp + random)
+    $newFileName = time() . '_' . rand(100, 999) . '.' . $imageFileType;
+    $targetFilePath = $targetDir . $newFileName;
+    
+    // Validasi ekstensi file
+    $allowedTypes = array('jpg', 'jpeg', 'png', 'gif', 'webp', 'svg');
+    
+    if(in_array($imageFileType, $allowedTypes)){
+        // Upload file ke server
+        if(move_uploaded_file($_FILES[$fileInputName]["tmp_name"], $targetFilePath)){
+            return $targetFilePath; // Mengembalikan path file yang berhasil diupload
+        }
+    }
+    return false; // Gagal upload
+}
+
+// --- LOGIKA POST (ADD & UPDATE) ---
 if($_SERVER["REQUEST_METHOD"] == "POST"){
     
+    // A. LOGIKA ADD PARTNER
     if(isset($_POST['add_partner'])){
         if(empty($_POST['name'])) {
             $error_msg = "Nama partner wajib diisi!";
@@ -27,15 +56,28 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $partner->name = $_POST['name'];
             $partner->description = $_POST['description'] ?? '';
             $partner->website = $_POST['website'] ?? '';
-            $partner->logo = $_POST['logo'] ?? '';
             $partner->status = $_POST['status'] ?? 'active';
             
-            if($partner->create()){
-                $_SESSION['message'] = "Berhasil menambahkan partner baru!";
-                echo "<script>window.location.href='admin_partners.php';</script>";
-                exit;
-            } else {
-                $error_msg = "Gagal menyimpan ke database.";
+            // Handle File Upload
+            $logoPath = ''; // Default kosong
+            if(!empty($_FILES["logo_image"]["name"])){
+                $uploadResult = uploadImage("logo_image");
+                if($uploadResult){
+                    $logoPath = $uploadResult;
+                } else {
+                    $error_msg = "Gagal upload gambar. Pastikan format jpg/png/svg.";
+                }
+            }
+            $partner->logo = $logoPath;
+
+            if(!isset($error_msg)) {
+                if($partner->create()){
+                    $_SESSION['message'] = "Berhasil menambahkan partner baru!";
+                    echo "<script>window.location.href='admin_partners.php';</script>";
+                    exit;
+                } else {
+                    $error_msg = "Gagal menyimpan ke database.";
+                }
             }
         }
     }
@@ -46,23 +88,54 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $partner->name = $_POST['name'];
         $partner->description = $_POST['description'];
         $partner->website = $_POST['website'];
-        $partner->logo = $_POST['logo'];
         $partner->status = $_POST['status'];
         
-        if($partner->update()){
-            $_SESSION['message'] = "Data partner berhasil diupdate!";
-            echo "<script>window.location.href='admin_partners.php';</script>";
-            exit;
+        // Handle File Upload untuk Edit
+        // Cek apakah user mengupload gambar baru?
+        if(!empty($_FILES["logo_image"]["name"])){
+            $uploadResult = uploadImage("logo_image");
+            if($uploadResult){
+                $partner->logo = $uploadResult; // Pakai gambar baru
+                
+                // (Opsional) Hapus gambar lama dari server jika perlu
+                if(!empty($_POST['existing_logo']) && file_exists($_POST['existing_logo'])){
+                    unlink($_POST['existing_logo']);
+                }
+            } else {
+                $error_msg = "Gagal upload gambar baru.";
+            }
         } else {
-            $error_msg = "Gagal mengupdate data.";
+            // Jika tidak upload baru, pakai path gambar lama (dari hidden input)
+            $partner->logo = $_POST['existing_logo'];
+        }
+        
+        if(!isset($error_msg)){
+            if($partner->update()){
+                $_SESSION['message'] = "Data partner berhasil diupdate!";
+                echo "<script>window.location.href='admin_partners.php';</script>";
+                exit;
+            } else {
+                $error_msg = "Gagal mengupdate data.";
+            }
         }
     }
 }
 
 // --- HANDLE DELETE (GET) ---
 if(isset($_GET['delete_id'])){
-    $partner->id = $_GET['delete_id'];
+    // Ambil info partner dulu untuk hapus filenya
+    $delete_id = $_GET['delete_id'];
+    $stmt = $db->prepare("SELECT logo_url FROM partners WHERE partner_id = ?");
+    $stmt->execute([$delete_id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    $partner->id = $delete_id;
     if($partner->delete()){
+        // Hapus file fisik jika ada
+        if($row && !empty($row['logo_url']) && file_exists($row['logo_url'])){
+            unlink($row['logo_url']);
+        }
+
         $_SESSION['message'] = "Partner berhasil dihapus!";
         echo "<script>window.location.href='admin_partners.php';</script>";
         exit;
@@ -76,7 +149,6 @@ if(isset($_GET['action'])){
     } elseif($_GET['action'] == 'edit' && isset($_GET['id'])){
         $show_form = true;
         $edit_mode = true;
-        // Ambil data partner untuk di-edit
         $stmt = $partner->read();
         while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
             if($row['id'] == $_GET['id']){
@@ -104,8 +176,8 @@ $partners = $partner->read();
                 <i class="fas fa-user-shield me-1"></i>
                 <span class="admin-name"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
             </div>
-            <a href="logout.php" class="btn btn-sm btn-outline-light">
-                <i class="fas fa-sign-out-alt me-1"></i>Logout
+            <a href="#" class="btn btn-sm btn-outline-light" class="text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
             </a>
         </div>
     </div>
@@ -170,7 +242,6 @@ $partners = $partner->read();
         <?php endif; ?>
 
         <?php if($show_form): ?>
-            <!-- FORM ADD/EDIT PARTNER -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-<?php echo $edit_mode ? 'warning' : 'primary'; ?> text-white py-3">
                     <h5 class="card-title mb-0">
@@ -179,9 +250,10 @@ $partners = $partner->read();
                     </h5>
                 </div>
                 <div class="card-body p-4">
-                    <form method="POST" action="admin_partners.php">
+                    <form method="POST" action="admin_partners.php" enctype="multipart/form-data">
                         <?php if($edit_mode): ?>
                             <input type="hidden" name="id" value="<?php echo $edit_data['id']; ?>">
+                            <input type="hidden" name="existing_logo" value="<?php echo htmlspecialchars($edit_data['logo']); ?>">
                         <?php endif; ?>
 
                         <div class="row">
@@ -219,13 +291,19 @@ $partners = $partner->read();
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Logo URL</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-image"></i></span>
-                                    <input type="url" class="form-control" name="logo" 
-                                           placeholder="https://example.com/logo.png"
-                                           value="<?php echo $edit_mode ? htmlspecialchars($edit_data['logo']) : ''; ?>">
+                                <label class="form-label">Partner Logo</label>
+                                <div class="input-group mb-2">
+                                    <input type="file" class="form-control" name="logo_image" accept="image/*">
                                 </div>
+                                
+                                <?php if($edit_mode && !empty($edit_data['logo'])): ?>
+                                    <div class="small text-muted mb-2">
+                                        Current Logo: <br>
+                                        <img src="<?php echo htmlspecialchars($edit_data['logo']); ?>" alt="Current Logo" 
+                                             style="height: 60px; margin-top: 5px; border: 1px solid #ddd; padding: 2px;">
+                                    </div>
+                                <?php endif; ?>
+                                <small class="text-muted d-block">Allowed formats: JPG, PNG, SVG, WEBP.</small>
                             </div>
                         </div>
 
@@ -243,7 +321,6 @@ $partners = $partner->read();
                 </div>
             </div>
         <?php else: ?>
-            <!-- TABEL LIST PARTNERS -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white py-3">
                     <h5 class="card-title mb-0">Partners List</h5>
@@ -267,10 +344,14 @@ $partners = $partner->read();
                                     <tr>
                                         <td><?php echo $row['id']; ?></td>
                                         <td>
-                                            <?php if(!empty($row['logo'])): ?>
+                                            <?php if(!empty($row['logo']) && file_exists($row['logo'])): ?>
                                                 <img src="<?php echo htmlspecialchars($row['logo']); ?>" 
                                                      alt="Logo" class="rounded border p-1" 
                                                      style="width: 50px; height: 50px; object-fit: contain;">
+                                            <?php elseif(!empty($row['logo'])): ?>
+                                                <img src="<?php echo htmlspecialchars($row['logo']); ?>" 
+                                                     alt="Missing" class="rounded border p-1" 
+                                                     style="width: 50px; height: 50px; object-fit: contain; opacity: 0.5;">
                                             <?php else: ?>
                                                 <div class="bg-light rounded border d-flex align-items-center justify-content-center" 
                                                      style="width: 50px; height: 50px;">
@@ -310,7 +391,7 @@ $partners = $partner->read();
                                                 
                                                 <a href="admin_partners.php?delete_id=<?php echo $row['id']; ?>" 
                                                    class="btn btn-sm btn-outline-danger"
-                                                   onclick="return confirm('Yakin ingin menghapus partner ini?')">
+                                                   onclick="return confirm('Yakin ingin menghapus partner ini? File gambar juga akan dihapus.')">
                                                     <i class="fas fa-trash"></i> Delete
                                                 </a>
                                             </div>
@@ -348,4 +429,4 @@ $partners = $partner->read();
     
 </style>
 
-<?php include_once 'includes/footer.php'; ?>    
+<?php include_once 'includes/footer.php'; ?>

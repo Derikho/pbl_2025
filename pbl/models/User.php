@@ -9,40 +9,58 @@ class User {
     public $email;
     public $role;
     public $full_name;
-    public $nim;
+    public $identification_number;
     public $institution;
     public $student_type;
     public $is_active;
     public $created_at;
 
+    public $error_message; // Variabel penampung pesan error
+
     public function __construct($db) {
         $this->conn = $db;
     }
 
-    public function login() {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE username = ? LIMIT 1";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $this->username);
+    // --- FUNGSI VALIDASI KHUSUS ---
+    private function validateInput($username, $id_number, $exclude_id = null) {
+        
+        // 1. CEK USERNAME (Wajib Unik)
+        $query_user = "SELECT user_id FROM " . $this->table_name . " 
+                       WHERE LOWER(username) = LOWER(:username)";
+        if($exclude_id) {
+            $query_user .= " AND user_id != :exclude_id";
+        }
+        
+        $stmt = $this->conn->prepare($query_user);
+        $stmt->bindParam(':username', $username);
+        if($exclude_id) $stmt->bindParam(':exclude_id', $exclude_id);
         $stmt->execute();
 
         if($stmt->rowCount() > 0) {
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            if(password_verify($this->password, $row['password_hash'])) {
-                $this->id = $row['user_id'];
-                $this->username = $row['username'];
-                $this->role = $row['role'];
-                return true;
+            $this->error_message = "Username '$username' sudah digunakan user lain.";
+            return false;
+        }
+
+        // 2. CEK NOMOR INDUK (Wajib Unik HANYA JIKA DIISI)
+        if (!empty($id_number)) {
+            $query_id = "SELECT user_id FROM " . $this->table_name . " 
+                         WHERE identification_number = :id_number";
+            if($exclude_id) {
+                $query_id .= " AND user_id != :exclude_id";
+            }
+
+            $stmt = $this->conn->prepare($query_id);
+            $stmt->bindParam(':id_number', $id_number);
+            if($exclude_id) $stmt->bindParam(':exclude_id', $exclude_id);
+            $stmt->execute();
+
+            if($stmt->rowCount() > 0) {
+                $this->error_message = "Nomor Induk '$id_number' sudah terdaftar.";
+                return false;
             }
         }
-        return false;
-    }
 
-    public function getTotalUsers() {
-        $query = "SELECT COUNT(*) as total FROM " . $this->table_name;
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row['total'];
+        return true; // Lolos Validasi
     }
 
     public function read() {
@@ -53,102 +71,145 @@ class User {
     }
 
     public function create() {
+        // 1. Sanitasi & Trim
+        $this->username = htmlspecialchars(strip_tags(trim($this->username ?? '')));
+        $this->full_name = htmlspecialchars(strip_tags(trim($this->full_name ?? '')));
+        $this->identification_number = htmlspecialchars(strip_tags(trim($this->identification_number ?? '')));
+        
+        $id_number_val = !empty($this->identification_number) ? $this->identification_number : null;
+
+        // --- VALIDASI PANJANG KARAKTER (BARU) ---
+        if (strlen($this->username) > 50) {
+            $this->error_message = "Gagal: Username terlalu panjang (Maksimal 50 karakter).";
+            return false;
+        }
+        if (strlen($this->full_name) > 50) {
+            $this->error_message = "Gagal: Nama Lengkap terlalu panjang (Maksimal 50 karakter).";
+            return false;
+        }
+        if (!empty($this->identification_number) && strlen($this->identification_number) > 50) {
+            $this->error_message = "Gagal: Nomor Induk terlalu panjang (Maksimal 50 karakter).";
+            return false;
+        }
+
+        // 2. VALIDASI KEUNIKAN (Username/ID kembar)
+        if(!$this->validateInput($this->username, $this->identification_number)) {
+            return false; 
+        }
+
+        // 3. Insert Database
         $query = "INSERT INTO " . $this->table_name . " 
-                  (username, password_hash, full_name, nim, institution, email, role, student_type, is_active) 
-                  VALUES (:username, :password, :full_name, :nim, :institution, :email, :role, :student_type, :is_active)";
+                  (username, password_hash, full_name, identification_number, institution, email, role, student_type, is_active) 
+                  VALUES (:username, :password, :full_name, :id_number, :institution, :email, :role, :st_type, :active)";
 
         $stmt = $this->conn->prepare($query);
-
-        $this->username = htmlspecialchars(strip_tags($this->username ?? ''));
-        $this->full_name = htmlspecialchars(strip_tags($this->full_name ?? ''));
-        $this->institution = htmlspecialchars(strip_tags($this->institution ?? ''));
-        $this->email = htmlspecialchars(strip_tags($this->email ?? ''));
-        $this->role = htmlspecialchars(strip_tags($this->role ?? ''));
-        
-        $nimClean = !empty($this->nim) ? htmlspecialchars(strip_tags($this->nim)) : null;
-        $studentTypeClean = !empty($this->student_type) ? htmlspecialchars(strip_tags($this->student_type)) : null;
 
         $stmt->bindParam(':username', $this->username);
         $stmt->bindParam(':password', $this->password);
         $stmt->bindParam(':full_name', $this->full_name);
-        $stmt->bindParam(':nim', $nimClean); 
+        $stmt->bindParam(':id_number', $id_number_val);
         $stmt->bindParam(':institution', $this->institution);
         $stmt->bindParam(':email', $this->email);
         $stmt->bindParam(':role', $this->role);
-        $stmt->bindParam(':student_type', $studentTypeClean); 
-        $stmt->bindParam(':is_active', $this->is_active, PDO::PARAM_BOOL);
+        $stmt->bindParam(':st_type', $this->student_type);
+        $stmt->bindParam(':active', $this->is_active, PDO::PARAM_BOOL);
 
-        if($stmt->execute()) { return true; }
+        try {
+            if($stmt->execute()) { return true; }
+        } catch(PDOException $e) {
+            $this->error_message = "Database Error: " . $e->getMessage();
+            return false;
+        }
         return false;
     }
 
     public function update() {
-        if(!empty($this->password)){
-            $query = "UPDATE " . $this->table_name . " 
-                      SET username = :username,
-                          password_hash = :password,
-                          full_name = :full_name,
-                          nim = :nim,
-                          institution = :institution,
-                          email = :email,
-                          role = :role,
-                          student_type = :student_type,
-                          is_active = :is_active,
-                          updated_at = CURRENT_TIMESTAMP
-                      WHERE user_id = :id";
-        } else {
-            $query = "UPDATE " . $this->table_name . " 
-                      SET username = :username,
-                          full_name = :full_name,
-                          nim = :nim,
-                          institution = :institution,
-                          email = :email,
-                          role = :role,
-                          student_type = :student_type,
-                          is_active = :is_active,
-                          updated_at = CURRENT_TIMESTAMP
-                      WHERE user_id = :id";
+        $this->id = (int)$this->id;
+        $this->username = htmlspecialchars(strip_tags(trim($this->username ?? '')));
+        $this->full_name = htmlspecialchars(strip_tags(trim($this->full_name ?? ''))); // Tambahkan ini
+        $this->identification_number = htmlspecialchars(strip_tags(trim($this->identification_number ?? '')));
+
+        $id_number_val = !empty($this->identification_number) ? $this->identification_number : null;
+
+        // --- VALIDASI PANJANG KARAKTER (BARU) ---
+        if (strlen($this->username) > 50) {
+            $this->error_message = "Gagal: Username terlalu panjang (Maksimal 50 karakter).";
+            return false;
+        }
+        if (strlen($this->full_name) > 50) {
+            $this->error_message = "Gagal: Nama Lengkap terlalu panjang (Maksimal 50 karakter).";
+            return false;
+        }
+        if (!empty($this->identification_number) && strlen($this->identification_number) > 50) {
+            $this->error_message = "Gagal: Nomor Induk terlalu panjang (Maksimal 50 karakter).";
+            return false;
         }
 
-        $stmt = $this->conn->prepare($query);
+        // 1. VALIDASI KEUNIKAN
+        if(!$this->validateInput($this->username, $this->identification_number, $this->id)) {
+            return false;
+        }
 
-        $this->id = (int)$this->id;
-        $this->username = htmlspecialchars(strip_tags($this->username ?? ''));
-        $this->full_name = htmlspecialchars(strip_tags($this->full_name ?? ''));
-        $this->institution = htmlspecialchars(strip_tags($this->institution ?? ''));
-        $this->email = htmlspecialchars(strip_tags($this->email ?? ''));
-        $this->role = htmlspecialchars(strip_tags($this->role ?? ''));
-
+        // 2. Update Query
+        $pass_set = !empty($this->password) ? ", password_hash = :password" : "";
         
-        $nimClean = !empty($this->nim) ? htmlspecialchars(strip_tags($this->nim)) : null;
-        $studentTypeClean = !empty($this->student_type) ? htmlspecialchars(strip_tags($this->student_type)) : null;
+        $query = "UPDATE " . $this->table_name . " 
+                  SET username = :username,
+                      full_name = :full_name,
+                      identification_number = :id_number,
+                      institution = :institution,
+                      email = :email,
+                      role = :role,
+                      student_type = :st_type,
+                      is_active = :active
+                      " . $pass_set . "
+                  WHERE user_id = :id";
 
+        $stmt = $this->conn->prepare($query);
+        // ... (Binding params sama seperti sebelumnya) ...
         $stmt->bindParam(':username', $this->username);
+        $stmt->bindParam(':full_name', $this->full_name);
+        $stmt->bindParam(':id_number', $id_number_val);
+        $stmt->bindParam(':institution', $this->institution);
+        $stmt->bindParam(':email', $this->email);
+        $stmt->bindParam(':role', $this->role);
+        $stmt->bindParam(':st_type', $this->student_type);
+        $stmt->bindParam(':active', $this->is_active, PDO::PARAM_BOOL);
+        $stmt->bindParam(':id', $this->id);
         
         if(!empty($this->password)){
             $stmt->bindParam(':password', $this->password);
         }
-        
-        $stmt->bindParam(':full_name', $this->full_name);
-        $stmt->bindParam(':nim', $nimClean); // Gunakan hasil bersih yang bisa bernilai NULL
-        $stmt->bindParam(':institution', $this->institution);
-        $stmt->bindParam(':email', $this->email);
-        $stmt->bindParam(':role', $this->role);
-        $stmt->bindParam(':student_type', $studentTypeClean); 
-        $stmt->bindParam(':is_active', $this->is_active, PDO::PARAM_BOOL);
-        $stmt->bindParam(':id', $this->id);
 
-        if($stmt->execute()) { return true; }
+        try {
+            if($stmt->execute()) { return true; }
+        } catch(PDOException $e) {
+            $this->error_message = "Database Error: " . $e->getMessage();
+            return false;
+        }
         return false;
     }
-
+    
+    // ... sisa function lain (delete, read, stats) tetap sama ...
     public function delete() {
         $query = "DELETE FROM " . $this->table_name . " WHERE user_id = :id";
         $stmt = $this->conn->prepare($query);
         $this->id = (int)$this->id;
         $stmt->bindParam(':id', $this->id);
-        if($stmt->execute()) { return true; }
-        return false;
+        return $stmt->execute();
+    }
+    
+    public function getUserStats() {
+        $query = "SELECT 
+                    COUNT(*) as total_users,
+                    COUNT(CASE WHEN role = 'admin' THEN 1 END) as total_admins,
+                    COUNT(CASE WHEN role = 'dosen' THEN 1 END) as total_dosen,
+                    COUNT(CASE WHEN role = 'member' THEN 1 END) as total_members,
+                    COUNT(CASE WHEN is_active = true THEN 1 END) as active_users
+                  FROM " . $this->table_name;
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
 ?>

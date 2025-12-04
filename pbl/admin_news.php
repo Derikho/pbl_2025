@@ -19,8 +19,40 @@ $show_form = false;
 $edit_mode = false;
 $edit_data = null;
 
+// --- FUNGSI HELPER UPLOAD GAMBAR ---
+function uploadNewsImage($fileInputName, $targetDir = "uploads/news/") {
+    // Buat folder jika belum ada
+    if (!file_exists($targetDir)) {
+        mkdir($targetDir, 0777, true);
+    }
+
+    $fileName = basename($_FILES[$fileInputName]["name"]);
+    $imageFileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    
+    // Generate nama file unik (Timestamp + Random) agar tidak bentrok
+    $newFileName = time() . '_' . rand(100, 999) . '.' . $imageFileType;
+    $targetFilePath = $targetDir . $newFileName;
+    
+    // Validasi ekstensi
+    $allowedTypes = array('jpg', 'jpeg', 'png', 'gif', 'webp');
+    
+    if(in_array($imageFileType, $allowedTypes)){
+        // Cek ukuran file (opsional, misal max 5MB)
+        if ($_FILES[$fileInputName]["size"] > 5000000) {
+            return false; // File terlalu besar
+        }
+
+        if(move_uploaded_file($_FILES[$fileInputName]["tmp_name"], $targetFilePath)){
+            return $targetFilePath;
+        }
+    }
+    return false;
+}
+
+// --- HANDLE FORM SUBMISSION (POST) ---
 if($_SERVER["REQUEST_METHOD"] == "POST"){
 
+    // A. ADD NEWS
     if(isset($_POST['add_news'])){
         if(empty($_POST['title']) || empty($_POST['content'])) {
             $error_msg = "Title and Content are required!";
@@ -28,49 +60,96 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $news->title = $_POST['title'];
             $news->content = $_POST['content'];
             $news->category = $_POST['category'] ?? 'General';
-            $news->image_url = $_POST['image_url'] ?? '';
             $news->status = $_POST['status'] ?? 'draft';
             $news->publish_date = !empty($_POST['publish_date']) ? $_POST['publish_date'] : date('Y-m-d H:i:s');
             
-            if($news->create()){
-                $_SESSION['message'] = "News article added successfully!";
-                echo "<script>window.location.href='admin_news.php';</script>";
-                exit;
-            } else {
-                $error_msg = "Failed to save to database.";
+            // Handle Upload Image
+            $imagePath = '';
+            if(!empty($_FILES["image_file"]["name"])){
+                $uploadResult = uploadNewsImage("image_file");
+                if($uploadResult){
+                    $imagePath = $uploadResult;
+                } else {
+                    $error_msg = "Gagal upload gambar. Pastikan format jpg/png/webp dan ukuran < 5MB.";
+                }
+            }
+            $news->image_url = $imagePath; // Simpan path ke model
+
+            if(!isset($error_msg)){
+                if($news->create()){
+                    $_SESSION['message'] = "News article added successfully!";
+                    echo "<script>window.location.href='admin_news.php';</script>";
+                    exit;
+                } else {
+                    $error_msg = "Failed to save to database.";
+                }
             }
         }
     }
 
+    // B. UPDATE NEWS
     if(isset($_POST['update_news'])){
         $news->id = $_POST['id'];
         $news->title = $_POST['title'];
         $news->content = $_POST['content'];
         $news->category = $_POST['category'];
-        $news->image_url = $_POST['image_url'];
         $news->status = $_POST['status'];
         $news->publish_date = $_POST['publish_date'];
         
-        if($news->update()){
-            $_SESSION['message'] = "News article updated successfully!";
-            echo "<script>window.location.href='admin_news.php';</script>";
-            exit;
+        // Handle Image Update
+        if(!empty($_FILES["image_file"]["name"])){
+            // User upload gambar baru
+            $uploadResult = uploadNewsImage("image_file");
+            if($uploadResult){
+                $news->image_url = $uploadResult;
+                
+                // Hapus file lama fisik jika ada
+                if(!empty($_POST['existing_image']) && file_exists($_POST['existing_image'])){
+                    unlink($_POST['existing_image']);
+                }
+            } else {
+                $error_msg = "Gagal upload gambar baru.";
+            }
         } else {
-            $error_msg = "Failed to update data.";
+            // User tidak upload, pakai path lama
+            $news->image_url = $_POST['existing_image'];
+        }
+
+        if(!isset($error_msg)){
+            if($news->update()){
+                $_SESSION['message'] = "News article updated successfully!";
+                echo "<script>window.location.href='admin_news.php';</script>";
+                exit;
+            } else {
+                $error_msg = "Failed to update data.";
+            }
         }
     }
 }
 
 // --- HANDLE DELETE (GET) ---
 if(isset($_GET['delete_id'])){
-    $news->id = $_GET['delete_id'];
+    $delete_id = $_GET['delete_id'];
+    
+    // Ambil path gambar lama untuk dihapus
+    $stmt = $db->prepare("SELECT thumbnail_url FROM posts WHERE post_id = ?");
+    $stmt->execute([$delete_id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $news->id = $delete_id;
     if($news->delete()){
+        // Hapus file fisik
+        if($row && !empty($row['thumbnail_url']) && file_exists($row['thumbnail_url'])){
+            unlink($row['thumbnail_url']);
+        }
+
         $_SESSION['message'] = "News deleted successfully!";
         echo "<script>window.location.href='admin_news.php';</script>";
         exit;
     }
 }
 
+// --- HANDLE SHOW FORM (GET) ---
 if(isset($_GET['action'])){
     if($_GET['action'] == 'add'){
         $show_form = true;
@@ -105,7 +184,7 @@ $news_articles = $news->read();
                 <span class="admin-name"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
             </div>
             <a href="logout.php" class="btn btn-sm btn-outline-light">
-                <i class="fas fa-sign-out-alt me-1"></i>Logout
+                <i class="fas fa-sign-out-alt"></i> Sign Out
             </a>
         </div>
     </div>
@@ -190,7 +269,6 @@ $news_articles = $news->read();
         <?php endif; ?>
 
         <?php if($show_form): ?>
-            <!-- FORM ADD/EDIT NEWS -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-<?php echo $edit_mode ? 'warning' : 'primary'; ?> text-white py-3">
                     <h5 class="card-title mb-0">
@@ -199,9 +277,10 @@ $news_articles = $news->read();
                     </h5>
                 </div>
                 <div class="card-body p-4">
-                    <form method="POST" action="admin_news.php">
+                    <form method="POST" action="admin_news.php" enctype="multipart/form-data">
                         <?php if($edit_mode): ?>
                             <input type="hidden" name="id" value="<?php echo $edit_data['id']; ?>">
+                            <input type="hidden" name="existing_image" value="<?php echo htmlspecialchars($edit_data['image_url']); ?>">
                         <?php endif; ?>
 
                         <div class="mb-3">
@@ -248,11 +327,18 @@ $news_articles = $news->read();
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Thumbnail Image URL</label>
-                            <input type="url" class="form-control" name="image_url" 
-                                   placeholder="https://example.com/image.jpg"
-                                   value="<?php echo $edit_mode ? htmlspecialchars($edit_data['image_url']) : ''; ?>">
-                            <small class="form-text text-muted">Recommended: 1200x630px</small>
+                            <label class="form-label">Thumbnail Image</label>
+                            <input type="file" class="form-control" name="image_file" accept="image/*">
+                            
+                            <?php if($edit_mode && !empty($edit_data['image_url'])): ?>
+                                <div class="mt-2 p-2 border rounded bg-light d-inline-block">
+                                    <div class="small text-muted mb-1">Current Thumbnail:</div>
+                                    <img src="<?php echo htmlspecialchars($edit_data['image_url']); ?>" 
+                                         alt="Current" 
+                                         style="height: 80px; width: auto; object-fit: cover;">
+                                </div>
+                            <?php endif; ?>
+                            <small class="form-text text-muted d-block mt-1">Allowed formats: JPG, PNG, WEBP. Max size: 5MB.</small>
                         </div>
 
                         <div class="mb-3">
@@ -276,7 +362,6 @@ $news_articles = $news->read();
                 </div>
             </div>
         <?php else: ?>
-            <!-- NEWS LIST TABLE -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white py-3">
                     <h5 class="card-title mb-0">News Articles List</h5>
@@ -301,14 +386,14 @@ $news_articles = $news->read();
                                         <td><?php echo $article['id']; ?></td>
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                <?php if(!empty($article['image_url'])): ?>
+                                                <?php if(!empty($article['image_url']) && file_exists($article['image_url'])): ?>
                                                     <img src="<?php echo htmlspecialchars($article['image_url']); ?>" 
-                                                         alt="Thumb" class="rounded me-3" 
+                                                         alt="Thumb" class="rounded me-3 border" 
                                                          style="width: 60px; height: 60px; object-fit: cover;">
                                                 <?php else: ?>
-                                                    <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center" 
+                                                    <div class="bg-light rounded me-3 border d-flex align-items-center justify-content-center" 
                                                          style="width: 60px; height: 60px;">
-                                                        <i class="fas fa-newspaper text-muted fa-2x"></i>
+                                                        <i class="fas fa-image text-muted"></i>
                                                     </div>
                                                 <?php endif; ?>
                                                 <div>
@@ -350,7 +435,7 @@ $news_articles = $news->read();
                                                 </a>
                                                 <a href="admin_news.php?delete_id=<?php echo $article['id']; ?>" 
                                                    class="btn btn-sm btn-outline-danger"
-                                                   onclick="return confirm('Are you sure you want to delete this article?')">
+                                                   onclick="return confirm('Are you sure you want to delete this article? Image will be deleted too.')">
                                                     <i class="fas fa-trash"></i> Delete
                                                 </a>
                                             </div>

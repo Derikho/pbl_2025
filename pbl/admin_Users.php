@@ -1,14 +1,11 @@
 <?php
-$page_title = "User Management - LET Lab Admin";
+$page_title = "Manage Users - LET Lab Admin";
 include_once 'includes/header.php';
 
+// 1. CEK LOGIN
 if(!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true || $_SESSION['role'] !== 'admin'){
     header("location: login.php");
     exit;
-}
-
-if(!isset($_SESSION['user_id'])){
-    $_SESSION['user_id'] = 0;
 }
 
 include_once 'config/database.php';
@@ -21,79 +18,68 @@ $user = new User($db);
 $show_form = false;
 $edit_mode = false;
 $edit_data = null;
+$error_msg = "";
 
+// --- HANDLE FORM SUBMISSION (POST) ---
 if($_SERVER["REQUEST_METHOD"] == "POST"){
+    
+    // Mapping Input
+    $user->username = $_POST['username'];
+    $user->full_name = $_POST['full_name'];
+    $user->email = $_POST['email'] ?? '';
+    // UBAH: Mengambil dari input identification_number
+    $user->identification_number = $_POST['identification_number'] ?? '';
+    $user->institution = $_POST['institution'] ?? '';
+    $user->role = $_POST['role'];
+    
+    // Logic Student Type
+    if($user->role == 'member'){
+        $user->student_type = $_POST['student_type'] ?? 'regular';
+    } else {
+        $user->student_type = null;
+    }
+    
+    $user->is_active = isset($_POST['is_active']) ? 1 : 0;
+    
+    if(!empty($_POST['password'])){
+        $user->password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    }
 
+    // A. ADD USER
     if(isset($_POST['add_user'])){
-        if(empty($_POST['username']) || empty($_POST['full_name']) || empty($_POST['password'])) {
-            $error_msg = "Username, Full Name, and Password are required!";
+        if(empty($_POST['username']) || empty($_POST['password']) || empty($_POST['full_name'])){
+            $error_msg = "Username, Password, dan Full Name wajib diisi!";
         } else {
-            $check_query = "SELECT user_id FROM users WHERE username = :username";
-            $check_stmt = $db->prepare($check_query);
-            $check_stmt->bindParam(':username', $_POST['username']);
-            $check_stmt->execute();
-            
-            if($check_stmt->rowCount() > 0){
-                $error_msg = "Username already exists!";
+            if($user->create()){
+                $_SESSION['message'] = "User successfully created!";
+                echo "<script>window.location.href='admin_users.php';</script>";
+                exit;
             } else {
-                $user->username = $_POST['username'];
-                $user->password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-                $user->full_name = $_POST['full_name'];
-                $user->nim = $_POST['nim'] ?? null;
-                $user->institution = $_POST['institution'] ?? null;
-                $user->email = $_POST['email'] ?? null;
-                $user->role = $_POST['role'] ?? 'member';
-                
-                if($_POST['role'] == 'member') {
-                    $user->student_type = $_POST['student_type'] ?? 'regular';
-                } else {
-                    $user->student_type = null; 
-                }
-                
-                $user->is_active = isset($_POST['is_active']) ? 1 : 0;
-                
-                if($user->create()){
-                    $_SESSION['message'] = "User account created successfully!";
-                    echo "<script>window.location.href='admin_users.php';</script>";
-                    exit;
-                } else {
-                    $error_msg = "Failed to save to database.";
-                }
+                $error_msg = !empty($user->error_message) ? $user->error_message : "Failed to create user.";
             }
         }
     }
 
+    // B. UPDATE USER
     if(isset($_POST['update_user'])){
         $user->id = $_POST['user_id'];
-        $user->username = $_POST['username'];
-        $user->full_name = $_POST['full_name'];
-        $user->nim = $_POST['nim'];
-        $user->institution = $_POST['institution'];
-        $user->email = $_POST['email'];
-        $user->role = $_POST['role'];
-        
-        if($_POST['role'] == 'member') {
-            $user->student_type = $_POST['student_type'] ?? 'regular';
-        } else {
-            $user->student_type = null; 
-        }
-        
-        $user->is_active = isset($_POST['is_active']) ? 1 : 0;
-        
-        if(!empty($_POST['password'])){
-            $user->password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-        }
         
         if($user->update()){
-            $_SESSION['message'] = "User account updated successfully!";
+            $_SESSION['message'] = "User updated successfully!";
             echo "<script>window.location.href='admin_users.php';</script>";
             exit;
         } else {
-            $error_msg = "Failed to update data.";
+            $error_msg = !empty($user->error_message) ? $user->error_message : "Failed to update user.";
+            // Keep form open
+            $show_form = true;
+            $edit_mode = true;
+            $edit_data = $_POST; // Preserve input
+            $edit_data['user_id'] = $_POST['user_id'];
         }
     }
 }
 
+// --- HANDLE DELETE (GET) ---
 if(isset($_GET['delete_id'])){
     $user->id = $_GET['delete_id'];
     if($user->delete()){
@@ -103,7 +89,8 @@ if(isset($_GET['delete_id'])){
     }
 }
 
-if(isset($_GET['action'])){
+// --- HANDLE SHOW FORM (GET) ---
+if(isset($_GET['action']) && !$error_msg){
     if($_GET['action'] == 'add'){
         $show_form = true;
     } elseif($_GET['action'] == 'edit' && isset($_GET['id'])){
@@ -119,18 +106,11 @@ if(isset($_GET['action'])){
     }
 }
 
-$users = $user->read();
+// AMBIL DATA STATISTIK (Penting agar kartu statistik tidak error)
+$stats = $user->getUserStats();
 
-$stats_query = "SELECT 
-    COUNT(*) as total_users,
-    COUNT(CASE WHEN role = 'admin' THEN 1 END) as total_admins,
-    COUNT(CASE WHEN role = 'member' THEN 1 END) as total_members,
-    COUNT(CASE WHEN role = 'dosen' THEN 1 END) as total_dosen,
-    COUNT(CASE WHEN is_active = true THEN 1 END) as active_users
-FROM users";
-$stats_stmt = $db->prepare($stats_query);
-$stats_stmt->execute();
-$stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
+// AMBIL LIST USER
+$users = $user->read();
 ?>
 
 <nav class="navbar navbar-expand-lg navbar-admin sticky-top">
@@ -147,7 +127,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                 <span class="admin-name"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
             </div>
             <a href="logout.php" class="btn btn-sm btn-outline-light">
-                <i class="fas fa-sign-out-alt me-1"></i>Logout
+                <i class="fas fa-sign-out-alt"></i> Sign Out
             </a>
         </div>
     </div>
@@ -222,7 +202,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
             </div>
         <?php endif; ?>
 
-        <?php if(isset($error_msg)): ?>
+        <?php if(!empty($error_msg)): ?>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <i class="fas fa-exclamation-circle me-2"></i>
                 <?php echo $error_msg; ?>
@@ -231,7 +211,6 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
         <?php endif; ?>
 
         <?php if(!$show_form): ?>
-            <!-- STATISTICS CARDS -->
             <div class="row mb-4">
                 <div class="col-md-3 mb-3">
                     <div class="stats-card bg-white p-3 rounded shadow-sm border-start border-primary border-4">
@@ -267,7 +246,6 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
         <?php endif; ?>
 
         <?php if($show_form): ?>
-            <!-- FORM ADD/EDIT USER -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-<?php echo $edit_mode ? 'warning' : 'primary'; ?> text-white py-3">
                     <h5 class="card-title mb-0">
@@ -312,9 +290,9 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Nomor Induk</label>
-                                <input type="text" class="form-control" name="nim" 
+                                <input type="text" class="form-control" name="identification_number" 
                                        placeholder="General ID Number for lecturer & student"
-                                       value="<?php echo $edit_mode ? htmlspecialchars($edit_data['nim']) : ''; ?>">
+                                       value="<?php echo $edit_mode ? htmlspecialchars($edit_data['identification_number'] ?? '') : ''; ?>">
                             </div>
                         </div>
 
@@ -348,9 +326,9 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                             <div class="col-md-4 mb-3" id="student_type_wrapper">
                                 <label class="form-label">Student Type</label>
                                 <select class="form-select" name="student_type" id="student_type">
-                                    <option value="regular" <?php echo ($edit_mode && $edit_data['student_type'] == 'regular') ? 'selected' : ''; ?>>Regular</option>
-                                    <option value="magang" <?php echo ($edit_mode && $edit_data['student_type'] == 'magang') ? 'selected' : ''; ?>>Magang</option>
-                                    <option value="skripsi" <?php echo ($edit_mode && $edit_data['student_type'] == 'skripsi') ? 'selected' : ''; ?>>Skripsi</option>
+                                    <option value="regular" <?php echo ($edit_mode && ($edit_data['student_type'] ?? '') == 'regular') ? 'selected' : ''; ?>>Regular</option>
+                                    <option value="magang" <?php echo ($edit_mode && ($edit_data['student_type'] ?? '') == 'magang') ? 'selected' : ''; ?>>Magang</option>
+                                    <option value="skripsi" <?php echo ($edit_mode && ($edit_data['student_type'] ?? '') == 'skripsi') ? 'selected' : ''; ?>>Skripsi</option>
                                 </select>
                                 <small class="form-text text-muted">Only for Mahasiswa</small>
                             </div>
@@ -381,7 +359,6 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                 </div>
             </div>
         <?php else: ?>
-            <!-- USERS LIST TABLE -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white py-3">
                     <h5 class="card-title mb-0">User Accounts</h5>
@@ -412,8 +389,8 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                                         </td>
                                         <td><?php echo htmlspecialchars($user_data['full_name']); ?></td>
                                         <td>
-                                            <?php if($user_data['nim']): ?>
-                                                <span class="badge bg-light text-dark border"><?php echo htmlspecialchars($user_data['nim']); ?></span>
+                                            <?php if(!empty($user_data['identification_number'])): ?>
+                                                <span class="badge bg-light text-dark border"><?php echo htmlspecialchars($user_data['identification_number']); ?></span>
                                             <?php else: ?>
                                                 <span class="text-muted small">-</span>
                                             <?php endif; ?>
@@ -448,7 +425,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                                         </td>
                                         <td>
                                             <?php if($user_data['role'] == 'member'): ?>
-                                                <small class="text-muted"><?php echo ucfirst($user_data['student_type']); ?></small>
+                                                <small class="text-muted"><?php echo ucfirst($user_data['student_type'] ?? ''); ?></small>
                                             <?php else: ?>
                                                 <span class="text-muted small">-</span>
                                             <?php endif; ?>
@@ -526,7 +503,7 @@ function toggleStudentType() {
     if(role === 'member') {
         studentTypeWrapper.style.display = 'block';
         studentTypeSelect.disabled = false;
-        studentTypeSelect.required = true;
+        // studentTypeSelect.required = true; // Opsional tergantung kebutuhan
     } else {
         studentTypeWrapper.style.display = 'none';
         studentTypeSelect.disabled = true;
@@ -543,4 +520,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include_once 'includes/footer.php'; ?>
+<?php include_once 'includes/footer.php'; ?>    

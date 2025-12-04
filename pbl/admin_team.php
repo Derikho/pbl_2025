@@ -21,20 +21,45 @@ $edit_mode = false;
 $edit_data = null;
 $details_data = []; 
 
+// --- FUNGSI HELPER UPLOAD GAMBAR ---
+function uploadTeamPhoto($fileInputName, $targetDir = "uploads/team/") {
+    // Buat folder jika belum ada
+    if (!file_exists($targetDir)) {
+        mkdir($targetDir, 0777, true);
+    }
+
+    $fileName = basename($_FILES[$fileInputName]["name"]);
+    $imageFileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    
+    // Generate nama file unik (Timestamp + Random)
+    $newFileName = time() . '_' . rand(100, 999) . '.' . $imageFileType;
+    $targetFilePath = $targetDir . $newFileName;
+    
+    // Validasi ekstensi
+    $allowedTypes = array('jpg', 'jpeg', 'png', 'gif', 'webp');
+    
+    if(in_array($imageFileType, $allowedTypes)){
+        if(move_uploaded_file($_FILES[$fileInputName]["tmp_name"], $targetFilePath)){
+            return $targetFilePath;
+        }
+    }
+    return false;
+}
+
 // --- HANDLE FORM SUBMISSION (POST) ---
 if($_SERVER["REQUEST_METHOD"] == "POST"){
 
-    // Helper Function untuk memproses data
+    // Helper Function untuk memproses data TEKS saja
     function processTeamData($team, $post) {
         $team->name = $post['name'];
         $team->position = $post['position'];
         $team->email = $post['email'] ?? '';
         $team->phone = $post['phone'] ?? '';
         $team->bio = $post['bio'] ?? '';
-        $team->photo = $post['photo'] ?? '';
+        // Note: Photo dihandle terpisah di logika utama
         $team->status = $post['status'] ?? 'active';
         
-        // 1. Social Links (Semua link sosmed)
+        // 1. Social Links
         $social_links = [];
         $keys = ['linkedin','twitter','facebook','instagram','github','website','sinta','google_scholar','researchgate','orcid','scopus'];
         foreach($keys as $key) { 
@@ -42,20 +67,18 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         }
         $team->social_links = !empty($social_links) ? $social_links : null;
 
-        // 2. Profile Details (Data Akademik Baru)
+        // 2. Profile Details
         $profile_details = [];
         $profile_details['nip'] = $post['nip'] ?? '';
         $profile_details['nidn'] = $post['nidn'] ?? '';
         $profile_details['prodi'] = $post['prodi'] ?? '';
         
-        // Proses Pendidikan (dipisah enter)
         if(!empty($post['education'])) {
             $profile_details['education'] = array_values(array_filter(array_map('trim', explode("\n", $post['education']))));
         } else {
             $profile_details['education'] = [];
         }
 
-        // Proses Sertifikasi (dipisah enter)
         if(!empty($post['certifications'])) {
             $profile_details['certifications'] = array_values(array_filter(array_map('trim', explode("\n", $post['certifications']))));
         } else {
@@ -65,43 +88,92 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $team->profile_details = $profile_details;
     }
 
-    // ADD MEMBER
+    // A. ADD MEMBER
     if(isset($_POST['add_member'])){
         if(empty($_POST['name']) || empty($_POST['position'])) {
             $error_msg = "Name and Position are required!";
         } else {
             processTeamData($team, $_POST);
-            if($team->create()){
-                $_SESSION['message'] = "Team member added successfully!";
-                echo "<script>window.location.href='admin_team.php';</script>";
-                exit;
-            } else { $error_msg = "Failed to save to database."; }
+
+            // Handle Upload Foto Baru
+            $photoPath = ''; 
+            if(!empty($_FILES["photo_file"]["name"])){
+                $uploadResult = uploadTeamPhoto("photo_file");
+                if($uploadResult){
+                    $photoPath = $uploadResult;
+                } else {
+                    $error_msg = "Gagal upload gambar (Format: jpg, png, webp).";
+                }
+            }
+            $team->photo = $photoPath;
+
+            if(!isset($error_msg)){
+                if($team->create()){
+                    $_SESSION['message'] = "Team member added successfully!";
+                    echo "<script>window.location.href='admin_team.php';</script>";
+                    exit;
+                } else { $error_msg = "Failed to save to database."; }
+            }
         }
     }
 
-    // UPDATE MEMBER
+    // B. UPDATE MEMBER
     if(isset($_POST['update_member'])){
         $team->id = $_POST['id'];
         processTeamData($team, $_POST);
-        if($team->update()){
-            $_SESSION['message'] = "Team member updated successfully!";
-            echo "<script>window.location.href='admin_team.php';</script>";
-            exit;
-        } else { $error_msg = "Failed to update data."; }
+        
+        // Handle Upload Foto Edit
+        if(!empty($_FILES["photo_file"]["name"])){
+            // User upload foto baru
+            $uploadResult = uploadTeamPhoto("photo_file");
+            if($uploadResult){
+                $team->photo = $uploadResult;
+                
+                // Hapus foto lama fisik jika ada
+                if(!empty($_POST['existing_photo']) && file_exists($_POST['existing_photo'])){
+                    unlink($_POST['existing_photo']);
+                }
+            } else {
+                $error_msg = "Gagal upload gambar baru.";
+            }
+        } else {
+            // User tidak upload, pakai foto lama
+            $team->photo = $_POST['existing_photo'];
+        }
+
+        if(!isset($error_msg)){
+            if($team->update()){
+                $_SESSION['message'] = "Team member updated successfully!";
+                echo "<script>window.location.href='admin_team.php';</script>";
+                exit;
+            } else { $error_msg = "Failed to update data."; }
+        }
     }
 }
 
-// DELETE MEMBER
+// C. DELETE MEMBER
 if(isset($_GET['delete_id'])){
-    $team->id = $_GET['delete_id'];
+    $delete_id = $_GET['delete_id'];
+    
+    // Ambil data dulu untuk hapus gambarnya
+    $stmt = $db->prepare("SELECT photo_url FROM team_members WHERE member_id = ?");
+    $stmt->execute([$delete_id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $team->id = $delete_id;
     if($team->delete()){
+        // Hapus file fisik
+        if($row && !empty($row['photo_url']) && file_exists($row['photo_url'])){
+            unlink($row['photo_url']);
+        }
+
         $_SESSION['message'] = "Member deleted successfully!";
         echo "<script>window.location.href='admin_team.php';</script>";
         exit;
     }
 }
 
-// SHOW FORM
+// SHOW FORM (GET)
 if(isset($_GET['action'])){
     if($_GET['action'] == 'add'){
         $show_form = true;
@@ -112,7 +184,7 @@ if(isset($_GET['action'])){
         while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
             if($row['id'] == $_GET['id']){
                 $edit_data = $row;
-                // Decode JSON Data untuk ditampilkan di form
+                // Decode JSON Data
                 if(!empty($edit_data['social_links'])) {
                     $edit_data['social_links'] = json_decode($edit_data['social_links'], true);
                 }
@@ -131,14 +203,19 @@ $team_members = $team->read();
 <nav class="navbar navbar-expand-lg navbar-admin sticky-top">
     <div class="container-fluid">
         <a class="navbar-brand text-white" href="admin_dashboard.php">
-            <div class="admin-logo"><i class="fas fa-crown me-2"></i><span>Admin Panel</span></div>
+            <div class="admin-logo">
+                <i class="fas fa-crown me-2"></i>
+                <span>Admin Panel</span>
+            </div>
         </a>
         <div class="navbar-actions ms-auto">
             <div class="admin-info me-3 text-white">
                 <i class="fas fa-user-shield me-1"></i>
                 <span class="admin-name"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
             </div>
-            <a href="logout.php" class="btn btn-sm btn-outline-light">Logout</a>
+            <a href="#" class="btn btn-sm btn-outline-light" class="text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+            </a>
         </div>
     </div>
 </nav>
@@ -200,9 +277,10 @@ $team_members = $team->read();
                     </h5>
                 </div>
                 <div class="card-body p-4">
-                    <form method="POST" action="admin_team.php">
+                    <form method="POST" action="admin_team.php" enctype="multipart/form-data">
                         <?php if($edit_mode): ?>
                             <input type="hidden" name="id" value="<?php echo $edit_data['id']; ?>">
+                            <input type="hidden" name="existing_photo" value="<?php echo htmlspecialchars($edit_data['photo']); ?>">
                         <?php endif; ?>
 
                         <div class="row">
@@ -238,13 +316,20 @@ $team_members = $team->read();
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Photo URL</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-image"></i></span>
-                                <input type="url" class="form-control" name="photo" 
-                                       value="<?php echo $edit_mode ? htmlspecialchars($edit_data['photo']) : ''; ?>">
+                            <label class="form-label">Photo</label>
+                            <div class="input-group mb-2">
+                                <input type="file" class="form-control" name="photo_file" accept="image/*">
                             </div>
-                            <small class="form-text text-muted">Recommended: Square image, min 400x400px</small>
+                            
+                            <?php if($edit_mode && !empty($edit_data['photo'])): ?>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="small text-muted">Current Photo:</div>
+                                    <img src="<?php echo htmlspecialchars($edit_data['photo']); ?>" 
+                                         alt="Current" 
+                                         style="height: 60px; width: 60px; object-fit: cover; border-radius: 50%; border: 1px solid #ddd;">
+                                </div>
+                            <?php endif; ?>
+                            <small class="form-text text-muted">Recommended: Square image (1:1), JPG/PNG.</small>
                         </div>
 
                         <div class="mb-3">
@@ -407,7 +492,7 @@ $team_members = $team->read();
                         <div class="card h-100 shadow-sm border-0">
                             <div class="card-body text-center">
                                 <div class="mb-3 position-relative d-inline-block">
-                                    <?php if($member['photo']): ?>
+                                    <?php if(!empty($member['photo']) && file_exists($member['photo'])): ?>
                                         <img src="<?php echo htmlspecialchars($member['photo']); ?>" class="rounded-circle border p-1" style="width: 100px; height: 100px; object-fit: cover;">
                                     <?php else: ?>
                                         <div class="rounded-circle bg-light border d-flex align-items-center justify-content-center mx-auto" style="width: 100px; height: 100px;"><i class="fas fa-user fa-3x text-secondary"></i></div>
@@ -418,7 +503,7 @@ $team_members = $team->read();
                             </div>
                             <div class="card-footer bg-white border-top-0 pb-3 pt-0 text-center">
                                 <a href="admin_team.php?action=edit&id=<?php echo $member['id']; ?>" class="btn btn-sm btn-outline-warning"><i class="fas fa-edit"></i> Edit</a>
-                                <a href="admin_team.php?delete_id=<?php echo $member['id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this member?')"><i class="fas fa-trash"></i> Delete</a>
+                                <a href="admin_team.php?delete_id=<?php echo $member['id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this member? Picture will be deleted too.')"><i class="fas fa-trash"></i> Delete</a>
                             </div>
                         </div>
                     </div>

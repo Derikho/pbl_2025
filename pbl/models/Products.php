@@ -9,14 +9,13 @@ class Product {
     public $image_url;
     public $link_demo;
     public $price;
-    public $category; // Kolom Baru
-    public $status;   // Kolom Baru
+    // Category & Status dihapus dari properti jika DB tidak mendukung
 
     public function __construct($db) {
         $this->conn = $db;
     }
 
-    // 1. READ (Ambil data termasuk category & status)
+    // 1. READ (Hapus created_at, category, status dari query)
     public function read() {
         $query = "SELECT 
                     product_id as id,
@@ -24,11 +23,9 @@ class Product {
                     description, 
                     image_url, 
                     link_demo, 
-                    price,
-                    category,
-                    status
+                    price
                   FROM " . $this->table_name . " 
-                  ORDER BY product_id DESC";
+                  ORDER BY product_id DESC"; // Ubah urutan jadi by ID karena created_at tidak ada
 
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
@@ -38,8 +35,8 @@ class Product {
     // 2. CREATE
     public function create() {
         $query = "INSERT INTO " . $this->table_name . " 
-                  (name, description, image_url, link_demo, price, category, status) 
-                  VALUES (:name, :desc, :img, :link, :price, :cat, :stat)";
+                  (name, description, image_url, link_demo, price) 
+                  VALUES (:name, :desc, :img, :link, :price)";
 
         $stmt = $this->conn->prepare($query);
 
@@ -49,8 +46,6 @@ class Product {
         $this->image_url = htmlspecialchars(strip_tags($this->image_url));
         $this->link_demo = htmlspecialchars(strip_tags($this->link_demo));
         $this->price = htmlspecialchars(strip_tags($this->price));
-        $this->category = htmlspecialchars(strip_tags($this->category));
-        $this->status = htmlspecialchars(strip_tags($this->status));
 
         // Bind
         $stmt->bindParam(':name', $this->name);
@@ -58,12 +53,8 @@ class Product {
         $stmt->bindParam(':img', $this->image_url);
         $stmt->bindParam(':link', $this->link_demo);
         $stmt->bindParam(':price', $this->price);
-        $stmt->bindParam(':cat', $this->category);
-        $stmt->bindParam(':stat', $this->status);
 
-        if($stmt->execute()) {
-            return true;
-        }
+        if($stmt->execute()) { return true; }
         return false;
     }
 
@@ -74,21 +65,16 @@ class Product {
                       description = :desc, 
                       image_url = :img, 
                       link_demo = :link,
-                      price = :price,
-                      category = :cat,
-                      status = :stat
+                      price = :price
                   WHERE product_id = :id";
 
         $stmt = $this->conn->prepare($query);
 
-        // Sanitize & Bind
         $this->name = htmlspecialchars(strip_tags($this->name));
         $this->description = htmlspecialchars(strip_tags($this->description));
         $this->image_url = htmlspecialchars(strip_tags($this->image_url));
         $this->link_demo = htmlspecialchars(strip_tags($this->link_demo));
         $this->price = htmlspecialchars(strip_tags($this->price));
-        $this->category = htmlspecialchars(strip_tags($this->category));
-        $this->status = htmlspecialchars(strip_tags($this->status));
         $this->id = htmlspecialchars(strip_tags($this->id));
 
         $stmt->bindParam(':name', $this->name);
@@ -96,13 +82,9 @@ class Product {
         $stmt->bindParam(':img', $this->image_url);
         $stmt->bindParam(':link', $this->link_demo);
         $stmt->bindParam(':price', $this->price);
-        $stmt->bindParam(':cat', $this->category);
-        $stmt->bindParam(':stat', $this->status);
         $stmt->bindParam(':id', $this->id);
 
-        if($stmt->execute()) {
-            return true;
-        }
+        if($stmt->execute()) { return true; }
         return false;
     }
 

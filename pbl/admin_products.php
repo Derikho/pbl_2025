@@ -9,7 +9,7 @@ if(!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true || $_SESSION[
 }
 
 include_once 'config/database.php';
-include_once 'models/Products.php'; // Pastikan nama file modelnya benar (Product.php atau Products.php)
+include_once 'models/Products.php';
 
 $database = new Database();
 $db = $database->getConnection();
@@ -19,6 +19,36 @@ $product = new Product($db);
 $show_form = false;
 $edit_mode = false;
 $edit_data = null;
+
+// --- FUNGSI HELPER UPLOAD GAMBAR ---
+function uploadProductImage($fileInputName, $targetDir = "uploads/products/") {
+    // Buat folder jika belum ada
+    if (!file_exists($targetDir)) {
+        mkdir($targetDir, 0777, true);
+    }
+
+    $fileName = basename($_FILES[$fileInputName]["name"]);
+    $imageFileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    
+    // Generate nama file unik (Timestamp + Random) agar tidak bentrok
+    $newFileName = time() . '_' . rand(100, 999) . '.' . $imageFileType;
+    $targetFilePath = $targetDir . $newFileName;
+    
+    // Validasi ekstensi
+    $allowedTypes = array('jpg', 'jpeg', 'png', 'gif', 'webp');
+    
+    if(in_array($imageFileType, $allowedTypes)){
+        // Cek ukuran file (opsional, misal max 2MB)
+        if ($_FILES[$fileInputName]["size"] > 2000000) {
+            return false; // File terlalu besar
+        }
+
+        if(move_uploaded_file($_FILES[$fileInputName]["tmp_name"], $targetFilePath)){
+            return $targetFilePath;
+        }
+    }
+    return false;
+}
 
 // --- HANDLE FORM SUBMISSION (POST) ---
 if($_SERVER["REQUEST_METHOD"] == "POST"){
@@ -31,17 +61,28 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $product->name = $_POST['name'];
             $product->description = $_POST['description'] ?? '';
             $product->price = $_POST['price'] ?? 0;
-            $product->image_url = $_POST['image_url'] ?? '';
             $product->link_demo = $_POST['link_demo'] ?? ''; 
             
-            // Tidak ada lagi category & status karena di DB tidak ada
+            // Handle Upload Image
+            $imagePath = '';
+            if(!empty($_FILES["image_file"]["name"])){
+                $uploadResult = uploadProductImage("image_file");
+                if($uploadResult){
+                    $imagePath = $uploadResult;
+                } else {
+                    $error_msg = "Gagal upload gambar. Pastikan format jpg/png/webp dan ukuran < 2MB.";
+                }
+            }
+            $product->image_url = $imagePath;
             
-            if($product->create()){
-                $_SESSION['message'] = "Product added successfully!";
-                echo "<script>window.location.href='admin_products.php';</script>";
-                exit;
-            } else {
-                $error_msg = "Failed to save to database.";
+            if(!isset($error_msg)){
+                if($product->create()){
+                    $_SESSION['message'] = "Product added successfully!";
+                    echo "<script>window.location.href='admin_products.php';</script>";
+                    exit;
+                } else {
+                    $error_msg = "Failed to save to database.";
+                }
             }
         }
     }
@@ -52,23 +93,55 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $product->name = $_POST['name'];
         $product->description = $_POST['description'];
         $product->price = $_POST['price'];
-        $product->image_url = $_POST['image_url'];
         $product->link_demo = $_POST['link_demo'];
         
-        if($product->update()){
-            $_SESSION['message'] = "Product updated successfully!";
-            echo "<script>window.location.href='admin_products.php';</script>";
-            exit;
+        // Handle Upload Image Update
+        if(!empty($_FILES["image_file"]["name"])){
+            // User upload gambar baru
+            $uploadResult = uploadProductImage("image_file");
+            if($uploadResult){
+                $product->image_url = $uploadResult;
+                
+                // Hapus file lama jika ada
+                if(!empty($_POST['existing_image']) && file_exists($_POST['existing_image'])){
+                    unlink($_POST['existing_image']);
+                }
+            } else {
+                $error_msg = "Gagal upload gambar baru.";
+            }
         } else {
-            $error_msg = "Failed to update data.";
+            // User tidak upload, pakai gambar lama
+            $product->image_url = $_POST['existing_image'];
+        }
+        
+        if(!isset($error_msg)){
+            if($product->update()){
+                $_SESSION['message'] = "Product updated successfully!";
+                echo "<script>window.location.href='admin_products.php';</script>";
+                exit;
+            } else {
+                $error_msg = "Failed to update data.";
+            }
         }
     }
 }
 
 // --- HANDLE DELETE (GET) ---
 if(isset($_GET['delete_id'])){
-    $product->id = $_GET['delete_id'];
+    $delete_id = $_GET['delete_id'];
+    
+    // Ambil path gambar dulu untuk dihapus
+    $stmt = $db->prepare("SELECT image_url FROM products WHERE product_id = ?");
+    $stmt->execute([$delete_id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $product->id = $delete_id;
     if($product->delete()){
+        // Hapus file fisik
+        if($row && !empty($row['image_url']) && file_exists($row['image_url'])){
+            unlink($row['image_url']);
+        }
+
         $_SESSION['message'] = "Product deleted successfully!";
         echo "<script>window.location.href='admin_products.php';</script>";
         exit;
@@ -109,8 +182,8 @@ $products = $product->read();
                 <i class="fas fa-user-shield me-1"></i>
                 <span class="admin-name"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
             </div>
-            <a href="logout.php" class="btn btn-sm btn-outline-light">
-                <i class="fas fa-sign-out-alt me-1"></i>Logout
+            <a href="#" class="btn btn-sm btn-outline-light" class="text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
             </a>
         </div>
     </div>
@@ -183,9 +256,10 @@ $products = $product->read();
                     </h5>
                 </div>
                 <div class="card-body p-4">
-                    <form method="POST" action="admin_products.php">
+                    <form method="POST" action="admin_products.php" enctype="multipart/form-data">
                         <?php if($edit_mode): ?>
                             <input type="hidden" name="id" value="<?php echo $edit_data['id']; ?>">
+                            <input type="hidden" name="existing_image" value="<?php echo htmlspecialchars($edit_data['image_url']); ?>">
                         <?php endif; ?>
 
                         <div class="mb-3">
@@ -214,10 +288,18 @@ $products = $product->read();
                             </div>
 
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Product Image URL</label>
-                                <input type="url" class="form-control" name="image_url" 
-                                       placeholder="https://example.com/image.jpg"
-                                       value="<?php echo $edit_mode ? htmlspecialchars($edit_data['image_url']) : ''; ?>">
+                                <label class="form-label">Product Image</label>
+                                <input type="file" class="form-control" name="image_file" accept="image/*">
+                                
+                                <?php if($edit_mode && !empty($edit_data['image_url'])): ?>
+                                    <div class="mt-2 small text-muted">
+                                        Current Image:<br>
+                                        <img src="<?php echo htmlspecialchars($edit_data['image_url']); ?>" 
+                                             alt="Preview" 
+                                             style="height: 60px; object-fit: contain; border: 1px solid #ddd; padding: 2px;">
+                                    </div>
+                                <?php endif; ?>
+                                <small class="form-text text-muted">Format: JPG, PNG, WEBP. Max: 2MB</small>
                             </div>
 
                              <div class="col-md-4 mb-3">
@@ -268,7 +350,7 @@ $products = $product->read();
                                     <tr>
                                         <td><?php echo $row['id']; ?></td>
                                         <td>
-                                            <?php if(!empty($row['image_url'])): ?>
+                                            <?php if(!empty($row['image_url']) && file_exists($row['image_url'])): ?>
                                                 <img src="<?php echo htmlspecialchars($row['image_url']); ?>" 
                                                      alt="Product" class="rounded border" 
                                                      style="width: 60px; height: 60px; object-fit: cover;">
@@ -314,7 +396,7 @@ $products = $product->read();
                                                 
                                                 <a href="admin_products.php?delete_id=<?php echo $row['id']; ?>" 
                                                    class="btn btn-sm btn-outline-danger"
-                                                   onclick="return confirm('Are you sure you want to delete this product?')">
+                                                   onclick="return confirm('Are you sure you want to delete this product? Image will be deleted too.')">
                                                     <i class="fas fa-trash"></i> Delete
                                                 </a>
                                             </div>

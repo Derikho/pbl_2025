@@ -32,13 +32,19 @@ $messages = $guestbook->read();
 <nav class="navbar navbar-expand-lg navbar-admin sticky-top">
     <div class="container-fluid">
         <a class="navbar-brand text-white" href="admin_dashboard.php">
-            <div class="admin-logo"><i class="fas fa-crown me-2"></i><span>Admin Panel</span></div>
+            <div class="admin-logo">
+                <i class="fas fa-crown me-2"></i>
+                <span>Admin Panel</span>
+            </div>
         </a>
         <div class="navbar-actions ms-auto">
             <div class="admin-info me-3 text-white">
-                <i class="fas fa-user-shield me-1"></i><span class="admin-name"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
+                <i class="fas fa-user-shield me-1"></i>
+                <span class="admin-name"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
             </div>
-            <a href="logout.php" class="btn btn-sm btn-outline-light">Logout</a>
+            <a href="#" class="btn btn-sm btn-outline-light" class="text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+            </a>
         </div>
     </div>
 </nav>
