@@ -21,6 +21,32 @@ class User {
         $this->conn = $db;
     }
 
+    public function login() {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE username = ? LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $this->username);
+        $stmt->execute();
+
+        if($stmt->rowCount() > 0) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            // Verifikasi Password
+            if(password_verify($this->password, $row['password_hash'])) {
+                $this->id = $row['user_id'];
+                $this->username = $row['username'];
+                $this->role = $row['role'];
+                return true;
+            }
+        }
+        return false;
+    }
+    public function getTotalUsers() {
+        $query = "SELECT COUNT(*) as total FROM " . $this->table_name;
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row['total'];
+    }
+
     // --- FUNGSI VALIDASI KHUSUS ---
     private function validateInput($username, $id_number, $exclude_id = null) {
         

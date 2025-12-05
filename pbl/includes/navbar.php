@@ -1,84 +1,5 @@
-<nav class="navbar navbar-expand-lg navbar-modern fixed-top">
-    <div class="container">
-        <a class="navbar-brand" href="index.php">
-            <img src="assets/img/logo_let.png" alt="Logo" class="brand-logo-img me-2" onerror="this.style.display='none'">
-            <div class="d-flex flex-column">
-                <span style="line-height: 1;">LET Lab</span>
-                <small style="font-size: 0.65rem; font-weight: 400; color: #666;">Politeknik Negeri Malang</small>
-            </div>
-        </a>
-
-        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mx-auto">
-                <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="index.php#about">About</a></li>
-                <li class="nav-item"><a class="nav-link" href="index.php#news">News</a></li>
-                <li class="nav-item"><a class="nav-link" href="index.php#activities">Activities</a></li>
-                <li class="nav-item"><a class="nav-link" href="visitor_booking.php">Booking</a></li>
-                <li class="nav-item"><a class="nav-link" href="index.php#store">Store</a></li>
-                <li class="nav-item"><a class="nav-link" href="index.php#gallery">Gallery</a></li>
-                <li class="nav-item"><a class="nav-link" href="index.php#contact">Contact</a></li>
-            </ul>
-
-            <div class="navbar-actions ms-lg-3">
-                <?php if(isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): ?>
-                    <div class="profile-dropdown">
-                        <button class="profile-trigger" type="button" id="profileTrigger">
-                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" 
-                                 style="width: 40px; height: 40px;">
-                                <i class="fas fa-user"></i>
-                            </div>
-                        </button>
-                        <div class="profile-menu" id="profileMenu">
-                            <div class="profile-header">
-                                <div class="profile-avatar"><i class="fas fa-user"></i></div>
-                                <div class="profile-info">
-                                    <h6><?php echo htmlspecialchars($_SESSION['username']); ?></h6>
-                                    <span><?php echo ucfirst($_SESSION['role']); ?></span>
-                                </div>
-                            </div>
-                            <div class="profile-links">
-                                <?php if($_SESSION['role'] === 'admin'): ?>
-                                    <a href="admin_dashboard.php"><i class="fas fa-tachometer-alt text-primary"></i> Admin Dashboard</a>
-                                <?php endif; ?>
-                                <?php if($_SESSION['role'] === 'member'): ?>
-                                    <button type="button" class="dropdown-btn" data-bs-toggle="modal" data-bs-target="#attendanceModal">
-                                        <i class="fas fa-clipboard-check text-success"></i> Presensi Harian
-                                    </button>
-                                <?php endif; ?>
-                                <hr class="my-2">
-                                <a href="#" class="text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                                    <i class="fas fa-sign-out-alt"></i> Sign Out
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                <?php else: ?>
-                    <a href="login.php" class="btn btn-primary rounded-pill px-4 shadow-sm">
-                        Login <i class="fas fa-arrow-right ms-1"></i>
-                    </a>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-</nav>
-
-        <div class="navbar-actions ms-auto">
-            <div class="admin-info me-3 text-white">
-                <i class="fas fa-user-shield me-1"></i>
-                <span class="admin-name"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
-            </div>
-            <a href="#" class="btn btn-sm btn-outline-light" class="text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                <i class="fas fa-sign-out-alt"></i> Sign Out
-            </a>
-        </div>
-
 <style>
-/* --- VARIABLES --- */
+    /* --- VARIABLES --- */
 :root {
     --primary-color: #2c3e50;
     --secondary-color: #3498db;
@@ -256,46 +177,157 @@ body {
         padding-top: 75px;
     }
 }
-
-html {
-    scroll-padding-top: 100px;
-}
 </style>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const profileTrigger = document.getElementById('profileTrigger');
-    const profileMenu = document.getElementById('profileMenu');
-    
-    if(profileTrigger && profileMenu) {
-        profileTrigger.addEventListener('click', function(e) {
-            e.stopPropagation();
-            profileMenu.classList.toggle('show');
-        });
-        
-        document.addEventListener('click', function(e) {
-            if (!profileTrigger.contains(e.target) && !profileMenu.contains(e.target)) {
-                profileMenu.classList.remove('show');
-            }
-        });
-        
-        profileMenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', function() {
-                profileMenu.classList.remove('show');
-            });
-        });
-    }
-});
+<nav class="navbar navbar-expand-lg navbar-modern fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="index.php">
+            <img src="assets/img/logo_let.png" alt="Logo" class="brand-logo-img me-2" onerror="this.style.display='none'">
+            <div class="d-flex flex-column">
+                <span style="line-height: 1;">LET Lab</span>
+                <small style="font-size: 0.65rem; font-weight: 400; color: #666;">Politeknik Negeri Malang</small>
+            </div>
+        </a>
 
-document.addEventListener('DOMContentLoaded', function() {
-    const currentPage = window.location.pathname.split('/').pop() || 'index.php';
-    const navLinks = document.querySelectorAll('.nav-link');
-    
-    navLinks.forEach(link => {
-        const href = link.getAttribute('href');
-        if(href === currentPage || href === './' + currentPage) {
-            link.classList.add('active');
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.php#about">About</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.php#activities">Activities</a></li>
+                <li class="nav-item"><a class="nav-link" href="visitor_booking.php">Booking</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.php#store">Store</a></li>
+                <li class="nav-item"><a class="nav-link" href="gallery.php">Gallery</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.php#contact">Contact</a></li>
+            </ul>
+
+            <div class="navbar-actions ms-lg-3">
+                <?php if(isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): ?>
+                    
+                    <div class="profile-dropdown">
+                        <div class="profile-trigger" onclick="toggleProfileMenu()" id="profileTrigger">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+
+                        <div class="profile-menu" id="profileMenu">
+                            <div class="profile-header">
+                                <div class="profile-avatar">
+                                    <?php echo strtoupper(substr($_SESSION['username'] ?? 'U', 0, 1)); ?>
+                                </div>
+                                <div class="profile-info">
+                                    <h6><?php echo htmlspecialchars($_SESSION['username'] ?? 'Guest'); ?></h6>
+                                    <span class="badge bg-light text-dark border mt-1">
+                                        <?php echo ucfirst($_SESSION['role'] ?? 'User'); ?>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="profile-links">
+                                <?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                                    <a href="admin_dashboard.php">
+                                        <i class="fas fa-tachometer-alt text-primary"></i> Admin Dashboard
+                                    </a>
+                                <?php endif; ?>
+
+                                <?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'member'): ?>
+                                    <button type="button" data-bs-toggle="modal" data-bs-target="#attendanceModal" onclick="toggleProfileMenu()">
+                                        <i class="fas fa-camera text-success"></i> Presensi & Upload
+                                    </button>
+                                    <a href="#">
+                                        <i class="fas fa-history text-info"></i> Riwayat Peminjaman
+                                    </a>
+                                <?php endif; ?>
+                                
+                                <?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'dosen'): ?>
+                                    <a href="#">
+                                        <i class="fas fa-user-tie text-warning"></i> Profil Dosen
+                                    </a>
+                                <?php endif; ?>
+
+                                <hr class="my-2">
+                                <a href="#" class="text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                <?php else: ?>
+                    <a href="login.php" class="nav-link btn-nav-login">
+                        Login <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'member'): ?>
+<div class="modal fade" id="attendanceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-success text-white border-0 rounded-top-4">
+                <h5 class="modal-title fw-bold"><i class="fas fa-camera me-2"></i>Presensi Harian</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="process_attendance.php" method="POST" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <h4 class="fw-bold text-dark"><?php echo date('l, d F Y'); ?></h4>
+                        <p class="text-muted small">Wajib upload foto bukti kehadiran di Laboratorium.</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold mb-2 small text-uppercase text-secondary">Bukti Foto</label>
+                        <input type="file" class="form-control" name="photo_proof" accept="image/*" required>
+                        <small class="text-muted" style="font-size: 0.75rem;">Format: JPG, PNG. Max 2MB.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="fw-bold mb-2 small text-uppercase text-secondary">Lokasi / Kegiatan</label>
+                        <textarea class="form-control bg-light" name="location_note" rows="2" placeholder="Contoh: Sedang praktikum di Lab Jaringan..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 px-4 pb-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">Kirim Presensi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+<script>
+    function toggleProfileMenu() {
+        const menu = document.getElementById('profileMenu');
+        menu.classList.toggle('active');
+    }
+
+    // Tutup dropdown jika klik di luar area
+    document.addEventListener('click', function(event) {
+        const menu = document.getElementById('profileMenu');
+        const trigger = document.getElementById('profileTrigger');
+        
+        if (menu && trigger && !menu.contains(event.target) && !trigger.contains(event.target)) {
+            menu.classList.remove('active');
         }
     });
-});
+
+    // Navbar Scroll Effect (Agar berubah saat discroll)
+    window.addEventListener('scroll', function() {
+        const navbar = document.querySelector('.navbar-modern');
+        if (window.scrollY > 50) {
+            navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+            navbar.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)';
+            navbar.style.padding = '10px 0';
+        } else {
+            navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+            navbar.style.boxShadow = '0 4px 30px rgba(0,0,0,0.04)';
+            navbar.style.padding = '12px 0';
+        }
+    });
 </script>

@@ -1,19 +1,21 @@
 <?php
+// 1. LOGIKA PHP DILETAKKAN DI PALING ATAS (Sebelum HTML apapun)
+// -----------------------------------------------------------
 
-
+// Mulai session jika belum dimulai
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 // HAPUS SESSION LAMA JIKA MEMBUKA HALAMAN LOGIN
-// Ini memastikan user melihat form login, bukan di-redirect otomatis
+// Ini memastikan user melihat form login, bukan di-redirect otomatis jika session masih nyangkut
 if(isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true){
-    // Jangan redirect, tapi biarkan dia login ulang (logout otomatis)
     $_SESSION = array();
     session_destroy();
     session_start(); 
 }
 
+// Include database & model
 include_once 'config/database.php';
 include_once 'models/User.php';
 
@@ -37,12 +39,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $_SESSION["role"] = $user->role;
         
         // Redirect berdasarkan Role
-        if($user->role != 'admin'){
+        if($user->role === 'admin'){
+            header("location: admin_dashboard.php");
+        } else {
             // Dosen & Mahasiswa ke Halaman Utama
             header("location: index.php");
-        } else {
-            // Admin ke Dashboard
-            header("location: admin_dashboard.php");
         }
         exit; // PENTING: Hentikan script setelah redirect
     } else {
@@ -105,3 +106,4 @@ include_once 'includes/header.php';
         </form>
     </div>
 </div>
+
