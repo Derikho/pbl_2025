@@ -55,7 +55,7 @@ if(file_exists('models/Activity.php')){
         <div class="hero-bg-wrapper">
             <?php
             // Path lengkap ke background image
-            $bgFile = 'assets/img/backgroundabout.jpeg';
+            $bgFile = 'assets/img/hero.jpg';
             
             if (file_exists($bgFile)) {
                 ?>
