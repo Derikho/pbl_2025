@@ -181,11 +181,27 @@ body {
 
 <nav class="navbar navbar-expand-lg navbar-modern fixed-top">
     <div class="container">
-        <a class="navbar-brand" href="index.php">
-            <img src="assets/img/logo_let.png" alt="Logo" class="brand-logo-img me-2" onerror="this.style.display='none'">
-            <div class="d-flex flex-column">
-                <span style="line-height: 1;">LET Lab</span>
-                <small style="font-size: 0.65rem; font-weight: 400; color: #666;">Politeknik Negeri Malang</small>
+        <!-- Brand/Logo Section - Diperbaiki -->
+        <a class="navbar-brand d-flex align-items-center" href="index.php" style="gap: 12px;">
+            <!-- Logo Container - Tanpa Shadow -->
+            <div class="logo-container position-relative" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                <img src="assets/img/logo.png" 
+                     alt="LET Lab Logo" 
+                     class="brand-logo-img"
+                     style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 0 transparent);"
+                     onerror="this.onerror=null; this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+                
+                <!-- Fallback jika logo tidak ada -->
+                <div id="logo-fallback" class="logo-fallback d-none align-items-center justify-content-center bg-primary text-white rounded-3" 
+                     style="width: 100%; height: 100%;">
+                    <span style="font-weight: 600; font-size: 1.2rem;">LET</span>
+                </div>
+            </div>
+            
+            <!-- Text Brand -->
+            <div class="d-flex flex-column justify-content-center" style="line-height: 1.2;">
+                <span class="fw-bold" style="font-size: 1.1rem; color: #333;">LET Lab</span>
+                <small class="text-muted" style="font-size: 0.7rem; font-weight: 400;">Politeknik Negeri Malang</small>
             </div>
         </a>
 
@@ -195,13 +211,13 @@ body {
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto">
-                <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="index.php#about">About</a></li>
-                <li class="nav-item"><a class="nav-link" href="index.php#activities">Activities</a></li>
-                <li class="nav-item"><a class="nav-link" href="visitor_booking.php">Booking</a></li>
-                <li class="nav-item"><a class="nav-link" href="index.php#store">Store</a></li>
-                <li class="nav-item"><a class="nav-link" href="gallery.php">Gallery</a></li>
-                <li class="nav-item"><a class="nav-link" href="index.php#contact">Contact</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.php">Rumah</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.php#about">Tentang</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.php#activities">Aktivitas</a></li>
+                <li class="nav-item"><a class="nav-link" href="visitor_booking.php">Peminjaman</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.php#store">Toko</a></li>
+                <li class="nav-item"><a class="nav-link" href="gallery.php">Galeri</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.php#contact">Kontak</a></li>
             </ul>
 
             <div class="navbar-actions ms-lg-3">
@@ -249,7 +265,7 @@ body {
 
                                 <hr class="my-2">
                                 <a href="#" class="text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                                    <i class="fas fa-sign-out-alt"></i> Keluar
                                 </a>
                             </div>
                         </div>
@@ -257,7 +273,7 @@ body {
 
                 <?php else: ?>
                     <a href="login.php" class="nav-link btn-nav-login">
-                        Login <i class="fas fa-arrow-right ms-1"></i>
+                        Masuk <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 <?php endif; ?>
             </div>
@@ -301,6 +317,90 @@ body {
 </div>
 <?php endif; ?>
 
+<!-- CSS untuk styling logo -->
+<style>
+    /* Logo styling */
+    .navbar-brand {
+        transition: all 0.3s ease;
+    }
+    
+    .navbar-brand:hover {
+        opacity: 0.9;
+    }
+    
+    .logo-container {
+        border-radius: 10px;
+        overflow: hidden;
+        background: transparent;
+        box-shadow: none !important;
+    }
+    
+    .brand-logo-img {
+        filter: none !important;
+        -webkit-filter: none !important;
+        transition: transform 0.3s ease;
+    }
+    
+    .brand-logo-img:hover {
+        transform: scale(1.05);
+    }
+    
+    .logo-fallback {
+        font-weight: 600;
+        background: linear-gradient(135deg, #4a6cf7 0%, #3a56d4 100%);
+    }
+    
+    /* Navbar styling */
+    .navbar-modern {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 8px 0;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Nav item styling */
+    .nav-link {
+        font-weight: 500;
+        color: #555 !important;
+        padding: 8px 15px !important;
+        margin: 0 2px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover,
+    .nav-link.active {
+        color: #4a6cf7 !important;
+        background: rgba(74, 108, 247, 0.08);
+    }
+    
+    /* Profile dropdown styling */
+    .profile-dropdown {
+        position: relative;
+    }
+    
+    .profile-trigger {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4a6cf7 0%, #3a56d4 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid white;
+        box-shadow: 0 4px 10px rgba(74, 108, 247, 0.2);
+    }
+    
+    .profile-trigger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(74, 108, 247, 0.3);
+    }
+</style>
+
 <script>
     function toggleProfileMenu() {
         const menu = document.getElementById('profileMenu');
@@ -317,17 +417,27 @@ body {
         }
     });
 
-    // Navbar Scroll Effect (Agar berubah saat discroll)
+    // Navbar Scroll Effect
     window.addEventListener('scroll', function() {
         const navbar = document.querySelector('.navbar-modern');
-        if (window.scrollY > 50) {
+        if (window.scrollY > 20) {
             navbar.style.background = 'rgba(255, 255, 255, 0.98)';
             navbar.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)';
-            navbar.style.padding = '10px 0';
+            navbar.style.padding = '6px 0';
         } else {
-            navbar.style.background = 'rgba(255, 255, 255, 0.95)';
-            navbar.style.boxShadow = '0 4px 30px rgba(0,0,0,0.04)';
-            navbar.style.padding = '12px 0';
+            navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+            navbar.style.boxShadow = '0 2px 15px rgba(0,0,0,0.05)';
+            navbar.style.padding = '8px 0';
+        }
+    });
+
+    // Initialize logo fallback
+    document.addEventListener('DOMContentLoaded', function() {
+        const logoImg = document.querySelector('.brand-logo-img');
+        const logoFallback = document.getElementById('logo-fallback');
+        
+        if (logoImg && logoImg.complete && logoImg.naturalHeight === 0) {
+            logoFallback.style.display = 'flex';
         }
     });
 </script>

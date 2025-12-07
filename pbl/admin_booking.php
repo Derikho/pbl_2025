@@ -1,7 +1,8 @@
 <?php
-$page_title = "Booking Management - LET Lab Admin";
+$page_title = "Manajemen Peminjaman - Admin LET Lab";
 include_once 'includes/header.php';
 
+// Cek autentikasi dan peran admin
 if(!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true || $_SESSION['role'] !== 'admin'){
     echo "<script>window.location.href='login.php';</script>";
     exit;
@@ -24,7 +25,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     
     if(isset($_POST['add_asset'])){
         if(empty($_POST['name'])) {
-            $error_msg = "Asset name is required!";
+            $error_msg = "Nama aset wajib diisi!";
         } else {
             $asset->name = $_POST['name'];
             $asset->category = $_POST['category'];
@@ -36,11 +37,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $asset->is_active = true;
             
             if($asset->create()){
-                $_SESSION['message'] = "Asset added successfully!";
+                $_SESSION['message'] = "Aset berhasil ditambahkan!";
                 echo "<script>window.location.href='admin_booking.php';</script>";
                 exit;
             } else {
-                $error_msg = "Failed to add asset.";
+                $error_msg = "Gagal menambahkan aset.";
             }
         }
     }
@@ -57,11 +58,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $asset->is_active = isset($_POST['is_active']) ? true : false;
         
         if($asset->update()){
-            $_SESSION['message'] = "Asset updated successfully!";
+            $_SESSION['message'] = "Aset berhasil diperbarui!";
             echo "<script>window.location.href='admin_booking.php';</script>";
             exit;
         } else {
-            $error_msg = "Failed to update asset.";
+            $error_msg = "Gagal memperbarui aset.";
         }
     }
 
@@ -71,11 +72,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $admin_note = $_POST['admin_note'] ?? '';
         
         if($booking->updateStatus($id, $status, $admin_note)){
-            $_SESSION['message'] = "Booking status updated successfully!";
+            $_SESSION['message'] = "Status peminjaman berhasil diperbarui!";
             echo "<script>window.location.href='admin_booking.php';</script>";
             exit;
         } else {
-            $_SESSION['error'] = "Failed to update status.";
+            $_SESSION['error'] = "Gagal memperbarui status.";
         }
     }
 }
@@ -83,7 +84,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 if(isset($_GET['delete_booking'])){
     $booking->id = $_GET['delete_booking'];
     if($booking->delete()){
-        $_SESSION['message'] = "Booking deleted successfully!";
+        $_SESSION['message'] = "Peminjaman berhasil dihapus!";
         echo "<script>window.location.href='admin_booking.php';</script>";
         exit;
     }
@@ -92,7 +93,7 @@ if(isset($_GET['delete_booking'])){
 if(isset($_GET['delete_asset'])){
     $asset->id = $_GET['delete_asset'];
     if($asset->delete()){
-        $_SESSION['message'] = "Asset deleted successfully!";
+        $_SESSION['message'] = "Aset berhasil dihapus!";
         echo "<script>window.location.href='admin_booking.php';</script>";
         exit;
     }
@@ -130,7 +131,7 @@ $assets = $asset->read();
         <a class="navbar-brand text-white" href="admin_dashboard.php">
             <div class="admin-logo">
                 <i class="fas fa-crown me-2"></i>
-                <span>Admin Panel</span>
+                <span>Panel Admin</span>
             </div>
         </a>
         <div class="navbar-actions ms-auto">
@@ -139,7 +140,7 @@ $assets = $asset->read();
                 <span class="admin-name"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
             </div>
             <a href="#" class="btn btn-sm btn-outline-light" class="text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                <i class="fas fa-sign-out-alt"></i> Sign Out
+                <i class="fas fa-sign-out-alt"></i> Keluar
             </a>
         </div>
     </div>
@@ -148,20 +149,20 @@ $assets = $asset->read();
 <div class="admin-container">
     <div class="admin-sidebar">
         <div class="sidebar-header">
-            <h5 class="mb-0">Navigation</h5>
+            <h5 class="mb-0">Navigasi</h5>
         </div>
         <ul class="sidebar-menu">
             <li class="menu-item"><a href="admin_dashboard.php"><i class="fas fa-tachometer-alt me-2"></i><span>Dashboard</span></a></li>
-            <li class="menu-item"><a href="admin_users.php"><i class="fas fa-users-cog me-2"></i><span>Users</span></a></li>
-            <li class="menu-item"><a href="admin_partners.php"><i class="fas fa-handshake me-2"></i><span>Partners</span></a></li>
-            <li class="menu-item"><a href="admin_team.php"><i class="fas fa-users me-2"></i><span>Team</span></a></li>
-            <li class="menu-item"><a href="admin_products.php"><i class="fas fa-box me-2"></i><span>Products</span></a></li>
-            <li class="menu-item"><a href="admin_news.php"><i class="fas fa-newspaper me-2"></i><span>News</span></a></li>
-            <li class="menu-item"><a href="admin_gallery.php"><i class="fas fa-images me-2"></i><span>Gallery</span></a></li>
-            <li class="menu-item"><a href="admin_activity.php"><i class="fas fa-chart-line me-2"></i><span>Activity</span></a></li>
-            <li class="menu-item active"><a href="admin_booking.php"><i class="fas fa-calendar-check me-2"></i><span>Booking</span></a></li>
-            <li class="menu-item"><a href="admin_absent.php"><i class="fas fa-clipboard-list me-2"></i><span>Absent</span></a></li>
-            <li class="menu-item"><a href="admin_guestbook.php"><i class="fas fa-envelope-open-text me-2"></i><span>Guest Book</span></a></li>
+            <li class="menu-item"><a href="admin_users.php"><i class="fas fa-users-cog me-2"></i><span>Pengguna</span></a></li>
+            <li class="menu-item"><a href="admin_partners.php"><i class="fas fa-handshake me-2"></i><span>Mitra</span></a></li>
+            <li class="menu-item"><a href="admin_team.php"><i class="fas fa-users me-2"></i><span>Tim</span></a></li>
+            <li class="menu-item"><a href="admin_products.php"><i class="fas fa-box me-2"></i><span>Produk</span></a></li>
+            <li class="menu-item"><a href="admin_news.php"><i class="fas fa-newspaper me-2"></i><span>Berita</span></a></li>
+            <li class="menu-item"><a href="admin_gallery.php"><i class="fas fa-images me-2"></i><span>Galeri</span></a></li>
+            <li class="menu-item"><a href="admin_activity.php"><i class="fas fa-chart-line me-2"></i><span>Aktivitas</span></a></li>
+            <li class="menu-item active"><a href="admin_booking.php"><i class="fas fa-calendar-check me-2"></i><span>Peminjaman</span></a></li>
+            <li class="menu-item"><a href="admin_absent.php"><i class="fas fa-clipboard-list me-2"></i><span>Absensi</span></a></li>
+            <li class="menu-item"><a href="admin_guestbook.php"><i class="fas fa-envelope-open-text me-2"></i><span>Buku Tamu</span></a></li>
         </ul>
     </div>
 
@@ -169,16 +170,16 @@ $assets = $asset->read();
         <div class="content-header mb-4">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h1 class="h3 mb-0 text-gray-800">Booking Management</h1>
+                    <h1 class="h3 mb-0 text-gray-800">Manajemen Peminjaman</h1>
                     <p class="text-muted small">Kelola peminjaman ruangan dan alat</p>
                 </div>
                 <?php if(!$show_asset_form): ?>
                     <a href="admin_booking.php?action=add_asset" class="btn btn-success">
-                        <i class="fas fa-plus me-1"></i> Add Stock
+                        <i class="fas fa-plus me-1"></i> Tambah Aset
                     </a>
                 <?php else: ?>
                     <a href="admin_booking.php" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-1"></i> Back to Booking
+                        <i class="fas fa-arrow-left me-1"></i> Kembali ke Peminjaman
                     </a>
                 <?php endif; ?>
             </div>
@@ -201,12 +202,11 @@ $assets = $asset->read();
         <?php endif; ?>
 
         <?php if($show_asset_form): ?>
-            <!-- FORM ADD/EDIT ASSET -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-<?php echo $edit_asset_mode ? 'warning' : 'success'; ?> text-white py-3">
                     <h5 class="card-title mb-0">
                         <i class="fas fa-<?php echo $edit_asset_mode ? 'edit' : 'plus-circle'; ?> me-2"></i>
-                        <?php echo $edit_asset_mode ? 'Edit Asset' : 'Add New Asset (Stock)'; ?>
+                        <?php echo $edit_asset_mode ? 'Edit Aset' : 'Tambah Aset Baru (Stok)'; ?>
                     </h5>
                 </div>
                 <div class="card-body p-4">
@@ -217,64 +217,64 @@ $assets = $asset->read();
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Asset Name *</label>
+                                <label class="form-label fw-bold">Nama Aset *</label>
                                 <input type="text" class="form-control" name="name" required 
-                                       placeholder="e.g. Projector, Meeting Room"
-                                       value="<?php echo $edit_asset_mode ? htmlspecialchars($edit_asset_data['name']) : ''; ?>">
+                                        placeholder="cth. Proyektor, Ruang Rapat"
+                                        value="<?php echo $edit_asset_mode ? htmlspecialchars($edit_asset_data['name']) : ''; ?>">
                             </div>
                             
                             <div class="col-md-3 mb-3">
-                                <label class="form-label fw-bold">Category *</label>
+                                <label class="form-label fw-bold">Kategori *</label>
                                 <select class="form-select" name="category" required>
-                                    <option value="tool" <?php echo ($edit_asset_mode && $edit_asset_data['category'] == 'tool') ? 'selected' : ''; ?>>Tool/Equipment</option>
-                                    <option value="room" <?php echo ($edit_asset_mode && $edit_asset_data['category'] == 'room') ? 'selected' : ''; ?>>Room</option>
+                                    <option value="tool" <?php echo ($edit_asset_mode && $edit_asset_data['category'] == 'tool') ? 'selected' : ''; ?>>Alat/Perlengkapan</option>
+                                    <option value="room" <?php echo ($edit_asset_mode && $edit_asset_data['category'] == 'room') ? 'selected' : ''; ?>>Ruangan</option>
                                 </select>
                             </div>
 
                             <div class="col-md-3 mb-3">
-                                <label class="form-label fw-bold">Total Quantity *</label>
+                                <label class="form-label fw-bold">Total Jumlah *</label>
                                 <input type="number" class="form-control" name="total_quantity" required min="1"
-                                       value="<?php echo $edit_asset_mode ? $edit_asset_data['total_quantity'] : '1'; ?>">
+                                        value="<?php echo $edit_asset_mode ? $edit_asset_data['total_quantity'] : '1'; ?>">
                             </div>
                         </div>
 
                         <?php if($edit_asset_mode): ?>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Available Quantity</label>
+                                <label class="form-label fw-bold">Jumlah Tersedia</label>
                                 <input type="number" class="form-control" name="available_quantity" required min="0"
-                                       value="<?php echo $edit_asset_data['available_quantity']; ?>">
-                                <small class="form-text text-muted">Currently available for booking</small>
+                                        value="<?php echo $edit_asset_data['available_quantity']; ?>">
+                                <small class="form-text text-muted">Saat ini tersedia untuk dipinjam</small>
                             </div>
                         <?php endif; ?>
 
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
+                            <label class="form-label">Deskripsi</label>
                             <textarea class="form-control" name="description" rows="3" 
-                                      placeholder="Details about this asset..."><?php echo $edit_asset_mode ? htmlspecialchars($edit_asset_data['description']) : ''; ?></textarea>
+                                        placeholder="Detail tentang aset ini..."><?php echo $edit_asset_mode ? htmlspecialchars($edit_asset_data['description']) : ''; ?></textarea>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Capacity (for rooms)</label>
+                                <label class="form-label">Kapasitas (untuk ruangan)</label>
                                 <input type="number" class="form-control" name="capacity" min="0"
-                                       placeholder="e.g. 30 people"
-                                       value="<?php echo $edit_asset_mode ? $edit_asset_data['capacity'] : '0'; ?>">
+                                        placeholder="cth. 30 orang"
+                                        value="<?php echo $edit_asset_mode ? $edit_asset_data['capacity'] : '0'; ?>">
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Image URL</label>
+                                <label class="form-label">URL Gambar</label>
                                 <input type="url" class="form-control" name="image_url" 
-                                       placeholder="https://example.com/image.jpg"
-                                       value="<?php echo $edit_asset_mode ? htmlspecialchars($edit_asset_data['image_url']) : ''; ?>">
+                                        placeholder="https://contoh.com/gambar.jpg"
+                                        value="<?php echo $edit_asset_mode ? htmlspecialchars($edit_asset_data['image_url']) : ''; ?>">
                             </div>
                         </div>
 
                         <?php if($edit_asset_mode): ?>
                             <div class="mb-3 form-check">
                                 <input type="checkbox" class="form-check-input" name="is_active" id="is_active"
-                                       <?php echo ($edit_asset_data['is_active']) ? 'checked' : ''; ?>>
+                                        <?php echo ($edit_asset_data['is_active']) ? 'checked' : ''; ?>>
                                 <label class="form-check-label" for="is_active">
-                                    Active (available for booking)
+                                    Aktif (tersedia untuk peminjaman)
                                 </label>
                             </div>
                         <?php endif; ?>
@@ -283,17 +283,16 @@ $assets = $asset->read();
                             <button type="submit" name="<?php echo $edit_asset_mode ? 'update_asset' : 'add_asset'; ?>" 
                                     class="btn btn-<?php echo $edit_asset_mode ? 'warning' : 'success'; ?> px-4">
                                 <i class="fas fa-save me-1"></i>
-                                <?php echo $edit_asset_mode ? 'Update Asset' : 'Add to Stock'; ?>
+                                <?php echo $edit_asset_mode ? 'Perbarui Aset' : 'Tambahkan ke Stok'; ?>
                             </button>
                             <a href="admin_booking.php" class="btn btn-secondary px-4">
-                                <i class="fas fa-times me-1"></i> Cancel
+                                <i class="fas fa-times me-1"></i> Batal
                             </a>
                         </div>
                     </form>
                 </div>
             </div>
         <?php else: ?>
-            <!-- STATISTICS CARDS -->
             <div class="row mb-4">
                 <div class="col-md-2">
                     <div class="stats-card bg-white p-3 rounded shadow-sm border-start border-primary border-4">
@@ -304,41 +303,40 @@ $assets = $asset->read();
                 <div class="col-md-2">
                     <div class="stats-card bg-white p-3 rounded shadow-sm border-start border-warning border-4">
                         <h3 class="mb-0 fw-bold"><?php echo $pendingBookings; ?></h3>
-                        <p class="text-muted mb-0 small">Pending</p>
+                        <p class="text-muted mb-0 small">Menunggu</p>
                     </div>
                 </div>
                 <div class="col-md-2">
                     <div class="stats-card bg-white p-3 rounded shadow-sm border-start border-success border-4">
                         <h3 class="mb-0 fw-bold"><?php echo $approvedBookings; ?></h3>
-                        <p class="text-muted mb-0 small">Approved</p>
+                        <p class="text-muted mb-0 small">Disetujui</p>
                     </div>
                 </div>
                 <div class="col-md-2">
                     <div class="stats-card bg-white p-3 rounded shadow-sm border-start border-info border-4">
                         <h3 class="mb-0 fw-bold"><?php echo $returnedBookings; ?></h3>
-                        <p class="text-muted mb-0 small">Returned</p>
+                        <p class="text-muted mb-0 small">Dikembalikan</p>
                     </div>
                 </div>
                 <div class="col-md-2">
                     <div class="stats-card bg-white p-3 rounded shadow-sm border-start border-danger border-4">
                         <h3 class="mb-0 fw-bold"><?php echo $rejectedBookings; ?></h3>
-                        <p class="text-muted mb-0 small">Rejected</p>
+                        <p class="text-muted mb-0 small">Ditolak</p>
                     </div>
                 </div>
                 <div class="col-md-2">
                     <div class="stats-card bg-white p-3 rounded shadow-sm border-start border-<?php echo $isRoomAvailable ? 'success' : 'secondary'; ?> border-4">
-                        <h4 class="mb-0 fw-bold"><?php echo $isRoomAvailable ? 'Yes' : 'No'; ?></h4>
-                        <p class="text-muted mb-0 small">Room Free</p>
+                        <h4 class="mb-0 fw-bold"><?php echo $isRoomAvailable ? 'Ya' : 'Tidak'; ?></h4>
+                        <p class="text-muted mb-0 small">Ruangan Tersedia</p>
                     </div>
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-8 mb-4">
-                    <!-- BOOKING LIST -->
                     <div class="card border-0 shadow-sm">
                         <div class="card-header bg-white py-3">
-                            <h5 class="card-title mb-0">Booking Requests</h5>
+                            <h5 class="card-title mb-0">Permintaan Peminjaman</h5>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -346,10 +344,10 @@ $assets = $asset->read();
                                     <thead class="table-light">
                                         <tr>
                                             <th>Item</th>
-                                            <th>User</th>
-                                            <th>Date/Time</th>
+                                            <th>Pengguna</th>
+                                            <th>Tanggal/Waktu</th>
                                             <th>Status</th>
-                                            <th width="200">Actions</th>
+                                            <th width="200">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -358,8 +356,8 @@ $assets = $asset->read();
                                             <tr>
                                                 <td>
                                                     <strong class="d-block"><?php echo htmlspecialchars($row['item_name']); ?></strong>
-                                                    <span class="badge bg-light text-dark border"><?php echo ucfirst($row['booking_type']); ?></span>
-                                                    <small class="d-block text-muted">Qty: <?php echo $row['qty']; ?></small>
+                                                    <span class="badge bg-light text-dark border"><?php echo ucfirst($row['booking_type'] == 'room' ? 'Ruangan' : 'Alat'); ?></span>
+                                                    <small class="d-block text-muted">Jml: <?php echo $row['qty']; ?></small>
                                                 </td>
                                                 <td>
                                                     <div class="small fw-bold"><?php echo htmlspecialchars($row['borrower_name']); ?></div>
@@ -375,49 +373,50 @@ $assets = $asset->read();
                                                 <td>
                                                     <?php 
                                                         $badge = 'secondary';
-                                                        if($row['status'] == 'approved') $badge = 'success';
-                                                        elseif($row['status'] == 'pending') $badge = 'warning';
-                                                        elseif($row['status'] == 'rejected') $badge = 'danger';
-                                                        elseif($row['status'] == 'returned') $badge = 'info';
+                                                        $status_text = 'Sekunder';
+                                                        if($row['status'] == 'approved') { $badge = 'success'; $status_text = 'Disetujui'; }
+                                                        elseif($row['status'] == 'pending') { $badge = 'warning'; $status_text = 'Menunggu'; }
+                                                        elseif($row['status'] == 'rejected') { $badge = 'danger'; $status_text = 'Ditolak'; }
+                                                        elseif($row['status'] == 'returned') { $badge = 'info'; $status_text = 'Dikembalikan'; }
                                                     ?>
-                                                    <span class="badge bg-<?php echo $badge; ?>"><?php echo ucfirst($row['status']); ?></span>
+                                                    <span class="badge bg-<?php echo $badge; ?>"><?php echo $status_text; ?></span>
                                                 </td>
                                                 <td>
                                                     <?php if($row['status'] == 'pending'): ?>
                                                         <form method="POST" class="d-inline">
                                                             <input type="hidden" name="booking_id" value="<?php echo $row['id']; ?>">
                                                             <input type="hidden" name="status" value="approved">
-                                                            <button type="submit" name="update_status" class="btn btn-sm btn-success me-1" title="Approve">
-                                                                <i class="fas fa-check"></i> Approve
+                                                            <button type="submit" name="update_status" class="btn btn-sm btn-success me-1" title="Setujui">
+                                                                <i class="fas fa-check"></i> Setujui
                                                             </button>
                                                         </form>
                                                         <form method="POST" class="d-inline">
                                                             <input type="hidden" name="booking_id" value="<?php echo $row['id']; ?>">
                                                             <input type="hidden" name="status" value="rejected">
-                                                            <button type="submit" name="update_status" class="btn btn-sm btn-danger me-1" title="Reject">
-                                                                <i class="fas fa-times"></i> Reject
+                                                            <button type="submit" name="update_status" class="btn btn-sm btn-danger me-1" title="Tolak">
+                                                                <i class="fas fa-times"></i> Tolak
                                                             </button>
                                                         </form>
                                                     <?php elseif($row['status'] == 'approved'): ?>
                                                         <form method="POST" class="d-inline">
                                                             <input type="hidden" name="booking_id" value="<?php echo $row['id']; ?>">
                                                             <input type="hidden" name="status" value="returned">
-                                                            <button type="submit" name="update_status" class="btn btn-sm btn-info me-1" title="Mark as Returned">
-                                                                <i class="fas fa-undo"></i> Returned
+                                                            <button type="submit" name="update_status" class="btn btn-sm btn-info me-1" title="Tandai Sudah Dikembalikan">
+                                                                <i class="fas fa-undo"></i> Dikembalikan
                                                             </button>
                                                         </form>
                                                     <?php endif; ?>
                                                     <a href="admin_booking.php?delete_booking=<?php echo $row['id']; ?>" 
-                                                       class="btn btn-sm btn-outline-danger"
-                                                       onclick="return confirm('Delete this booking?')">
-                                                        <i class="fas fa-trash"></i>
+                                                         class="btn btn-sm btn-outline-danger"
+                                                         onclick="return confirm('Hapus peminjaman ini?')">
+                                                         <i class="fas fa-trash"></i>
                                                     </a>
                                                 </td>
                                             </tr>
                                             <?php endwhile; ?>
                                         <?php else: ?>
                                             <tr>
-                                                <td colspan="5" class="text-center py-4 text-muted">No bookings yet.</td>
+                                                <td colspan="5" class="text-center py-4 text-muted">Belum ada peminjaman.</td>
                                             </tr>
                                         <?php endif; ?>
                                     </tbody>
@@ -428,10 +427,9 @@ $assets = $asset->read();
                 </div>
 
                 <div class="col-md-4">
-                    <!-- ASSET STATUS (REAL-TIME) -->
                     <div class="card border-0 shadow-sm mb-3">
                         <div class="card-header bg-white py-3">
-                            <h5 class="card-title mb-0">Asset Status (Real-time)</h5>
+                            <h5 class="card-title mb-0">Status Aset (Saat Ini)</h5>
                         </div>
                         <div class="card-body">
                             <?php 
@@ -452,14 +450,14 @@ $assets = $asset->read();
                                     <div class="progress-bar bg-<?php echo $color; ?>" style="width: <?php echo $percentage; ?>%"></div>
                                 </div>
                                 <div class="d-flex justify-content-between mt-1">
-                                    <small class="text-muted"><?php echo ucfirst($ast['category']); ?></small>
+                                    <small class="text-muted"><?php echo ucfirst($ast['category'] == 'room' ? 'Ruangan' : 'Alat'); ?></small>
                                     <div>
-                                        <a href="admin_booking.php?action=edit_asset&id=<?php echo $ast['id']; ?>" class="btn btn-xs btn-outline-primary">
+                                        <a href="admin_booking.php?action=edit_asset&id=<?php echo $ast['id']; ?>" class="btn btn-xs btn-outline-primary" title="Edit Aset">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <a href="admin_booking.php?delete_asset=<?php echo $ast['id']; ?>" 
                                            class="btn btn-xs btn-outline-danger"
-                                           onclick="return confirm('Delete this asset?')">
+                                           onclick="return confirm('Hapus aset ini?')">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </div>
@@ -469,24 +467,23 @@ $assets = $asset->read();
                                 endwhile;
                             else:
                             ?>
-                                <p class="text-muted text-center py-3">No assets available. Click "Add Stock" to add assets.</p>
+                                <p class="text-muted text-center py-3">Tidak ada aset tersedia. Klik "Tambah Aset" untuk menambah aset.</p>
                             <?php endif; ?>
                         </div>
                     </div>
 
-                    <!-- ROOM STATUS -->
                     <div class="card border-0 shadow-sm">
                         <div class="card-body text-center p-4">
-                            <h6 class="mb-3">Room Status</h6>
+                            <h6 class="mb-3">Status Ruangan</h6>
                             <?php if($isRoomAvailable): ?>
                                 <h3 class="text-success fw-bold mb-0">
                                     <i class="fas fa-door-open fa-2x d-block mb-2"></i>
-                                    Available
+                                    Tersedia
                                 </h3>
                             <?php else: ?>
                                 <h3 class="text-danger fw-bold mb-0">
                                     <i class="fas fa-door-closed fa-2x d-block mb-2"></i>
-                                    In Use
+                                    Sedang Digunakan
                                 </h3>
                             <?php endif; ?>
                         </div>
@@ -501,18 +498,18 @@ $assets = $asset->read();
     .sidebar-header {
         text-align: center;
         padding: 1rem;
-        border-bottom: 1px solid #dee2e6;
+        border-bottom: 1px solid #06305aff;
         margin-bottom: 1rem;
     }
     .admin-container {
         display: flex;
-        background-color: #f8f9fa;
+        background-color: #06305aff;
         min-height: 100vh;
     }
     .sidebar-header {
         text-align: center;
         padding: 1rem;
-        border-bottom: 1px solid #dee2e6;
+        border-bottom: 1px solid #06305aff;
         margin-bottom: 1rem;
     }
     .admin-content {

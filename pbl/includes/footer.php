@@ -24,7 +24,7 @@
                         
                         <!-- Social Media -->
                         <div class="footer-social mt-4">
-                            <h6 class="footer-social-title">Follow Us</h6>
+                            <h6 class="footer-social-title">Ikuti Kami</h6>
                             <div class="social-links">
                                 <a href="#" class="social-link" title="Facebook">
                                     <i class="fab fa-facebook-f"></i>
@@ -49,13 +49,13 @@
                 <!-- Quick Links -->
                 <div class="col-lg-2 col-md-6">
                     <div class="footer-links-section">
-                        <h5 class="footer-section-title">Quick Links</h5>
+                        <h5 class="footer-section-title">Tautan Cepat</h5>
                         <ul class="footer-links-list">
-                            <li><a href="index.php"><i class="fas fa-angle-right"></i> Home</a></li>
-                            <li><a href="index.php#about"><i class="fas fa-angle-right"></i> About Us</a></li>
-                            <li><a href="daftar_team.php"><i class="fas fa-angle-right"></i> Our Team</a></li>
-                            <li><a href="index.php#news"><i class="fas fa-angle-right"></i> News</a></li>
-                            <li><a href="activities.php"><i class="fas fa-angle-right"></i> Activities</a></li>
+                            <li><a href="index.php"><i class="fas fa-angle-right"></i> Beranda</a></li>
+                            <li><a href="index.php#about"><i class="fas fa-angle-right"></i> Tentang Kami</a></li>
+                            <li><a href="daftar_team.php"><i class="fas fa-angle-right"></i> Tim Kami</a></li>
+                            <li><a href="index.php#news"><i class="fas fa-angle-right"></i> Berita</a></li>
+                            <li><a href="activities.php"><i class="fas fa-angle-right"></i> Aktivitas</a></li>
                         </ul>
                     </div>
                 </div>
@@ -63,13 +63,13 @@
                 <!-- Services -->
                 <div class="col-lg-2 col-md-6">
                     <div class="footer-links-section">
-                        <h5 class="footer-section-title">Services</h5>
+                        <h5 class="footer-section-title">Layanan</h5>
                         <ul class="footer-links-list">
-                            <li><a href="index.php#store"><i class="fas fa-angle-right"></i> Products</a></li>
-                            <li><a href="visitor_booking.php"><i class="fas fa-angle-right"></i> Booking</a></li>
-                            <li><a href="gallery.php"><i class="fas fa-angle-right"></i> Gallery</a></li>
-                            <li><a href="index.php#contact"><i class="fas fa-angle-right"></i> Contact</a></li>
-                            <li><a href="login.php"><i class="fas fa-angle-right"></i> Member Area</a></li>
+                            <li><a href="index.php#store"><i class="fas fa-angle-right"></i> Produk</a></li>
+                            <li><a href="visitor_booking.php"><i class="fas fa-angle-right"></i> Pemesanan</a></li>
+                            <li><a href="gallery.php"><i class="fas fa-angle-right"></i> Galeri</a></li>
+                            <li><a href="index.php#contact"><i class="fas fa-angle-right"></i> Kontak</a></li>
+                            <li><a href="login.php"><i class="fas fa-angle-right"></i> Area Anggota</a></li>
                         </ul>
                     </div>
                 </div>
@@ -77,7 +77,7 @@
                 <!-- Contact Info -->
                 <div class="col-lg-4 col-md-6">
                     <div class="footer-contact-section">
-                        <h5 class="footer-section-title">Contact Information</h5>
+                        <h5 class="footer-section-title">Informasi Kontak</h5>
                         <div class="footer-contact-list">
                             <div class="contact-item-modern">
                                 <div class="contact-icon">
@@ -118,7 +118,7 @@
                         
                         <!-- Visitor Counter -->
                         <div class="visitor-counter mt-4">
-                            <h6 class="visitor-title">Visitor Statistics</h6>
+                            <h6 class="visitor-title">Statistik Pengunjung</h6>
                             <a href="https://info.flagcounter.com/Nlq4" target="_blank">
                                 <img src="https://s05.flagcounter.com/count2/Nlq4/bg_2C3E50/txt_FFFFFF/border_2C3E50/columns_3/maxflags_6/viewers_0/labels_1/pageviews_1/flags_0/percent_0/" 
                                      alt="Flag Counter" class="img-fluid rounded shadow-sm">

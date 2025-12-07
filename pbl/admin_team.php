@@ -1,5 +1,5 @@
 <?php
-$page_title = "Manage Team - LET Lab Admin";
+$page_title = "Manajemen Tim - Admin LET Lab";
 include_once 'includes/header.php';
 
 // 1. CEK LOGIN
@@ -88,10 +88,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $team->profile_details = $profile_details;
     }
 
-    // A. ADD MEMBER
+    // A. TAMBAH ANGGOTA
     if(isset($_POST['add_member'])){
         if(empty($_POST['name']) || empty($_POST['position'])) {
-            $error_msg = "Name and Position are required!";
+            $error_msg = "Nama dan Posisi wajib diisi!";
         } else {
             processTeamData($team, $_POST);
 
@@ -109,15 +109,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
             if(!isset($error_msg)){
                 if($team->create()){
-                    $_SESSION['message'] = "Team member added successfully!";
+                    $_SESSION['message'] = "Anggota tim berhasil ditambahkan!";
                     echo "<script>window.location.href='admin_team.php';</script>";
                     exit;
-                } else { $error_msg = "Failed to save to database."; }
+                } else { $error_msg = "Gagal menyimpan ke database."; }
             }
         }
     }
 
-    // B. UPDATE MEMBER
+    // B. UPDATE ANGGOTA
     if(isset($_POST['update_member'])){
         $team->id = $_POST['id'];
         processTeamData($team, $_POST);
@@ -143,15 +143,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
         if(!isset($error_msg)){
             if($team->update()){
-                $_SESSION['message'] = "Team member updated successfully!";
+                $_SESSION['message'] = "Anggota tim berhasil diperbarui!";
                 echo "<script>window.location.href='admin_team.php';</script>";
                 exit;
-            } else { $error_msg = "Failed to update data."; }
+            } else { $error_msg = "Gagal memperbarui data."; }
         }
     }
 }
 
-// C. DELETE MEMBER
+// C. HAPUS ANGGOTA
 if(isset($_GET['delete_id'])){
     $delete_id = $_GET['delete_id'];
     
@@ -167,7 +167,7 @@ if(isset($_GET['delete_id'])){
             unlink($row['photo_url']);
         }
 
-        $_SESSION['message'] = "Member deleted successfully!";
+        $_SESSION['message'] = "Anggota berhasil dihapus!";
         echo "<script>window.location.href='admin_team.php';</script>";
         exit;
     }
@@ -205,7 +205,7 @@ $team_members = $team->read();
         <a class="navbar-brand text-white" href="admin_dashboard.php">
             <div class="admin-logo">
                 <i class="fas fa-crown me-2"></i>
-                <span>Admin Panel</span>
+                <span>Panel Admin</span>
             </div>
         </a>
         <div class="navbar-actions ms-auto">
@@ -214,7 +214,7 @@ $team_members = $team->read();
                 <span class="admin-name"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
             </div>
             <a href="#" class="btn btn-sm btn-outline-light" class="text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                <i class="fas fa-sign-out-alt"></i> Sign Out
+                <i class="fas fa-sign-out-alt"></i> Keluar
             </a>
         </div>
     </div>
@@ -222,20 +222,20 @@ $team_members = $team->read();
 
 <div class="admin-container">
     <div class="admin-sidebar">
-        <div class="sidebar-header"><h5 class="mb-0">Navigation</h5></div>
+        <div class="sidebar-header"><h5 class="mb-0">Navigasi</h5></div>
         <ul class="sidebar-menu">
             <li class="menu-item"><a href="admin_dashboard.php"><i class="fas fa-tachometer-alt me-2"></i><span>Dashboard</span></a></li>
-            <li class="menu-item"><a href="admin_users.php"><i class="fas fa-users-cog me-2"></i><span>Users</span></a></li>
-            <li class="menu-item"><a href="admin_partners.php"><i class="fas fa-handshake me-2"></i><span>Partners</span></a></li>
-            <li class="menu-item active"><a href="admin_team.php"><i class="fas fa-users me-2"></i><span>Team</span></a></li>
-            <li class="menu-item"><a href="admin_products.php"><i class="fas fa-box me-2"></i><span>Products</span></a></li>
-            <li class="menu-item"><a href="admin_news.php"><i class="fas fa-newspaper me-2"></i><span>News</span></a></li>
-            <li class="menu-item"><a href="admin_gallery.php"><i class="fas fa-images me-2"></i><span>Gallery</span></a></li>
-            <li class="menu-item"><a href="admin_activity.php"><i class="fas fa-chart-line me-2"></i><span>Activity</span></a></li>
-            <li class="menu-item"><a href="admin_booking.php"><i class="fas fa-calendar-check me-2"></i><span>Booking</span></a></li>
-            <li class="menu-item"><a href="admin_absent.php"><i class="fas fa-clipboard-list me-2"></i><span>Absent</span></a></li>
+            <li class="menu-item"><a href="admin_users.php"><i class="fas fa-users-cog me-2"></i><span>Pengguna</span></a></li>
+            <li class="menu-item"><a href="admin_partners.php"><i class="fas fa-handshake me-2"></i><span>Mitra</span></a></li>
+            <li class="menu-item active"><a href="admin_team.php"><i class="fas fa-users me-2"></i><span>Tim</span></a></li>
+            <li class="menu-item"><a href="admin_products.php"><i class="fas fa-box me-2"></i><span>Produk</span></a></li>
+            <li class="menu-item"><a href="admin_news.php"><i class="fas fa-newspaper me-2"></i><span>Berita</span></a></li>
+            <li class="menu-item"><a href="admin_gallery.php"><i class="fas fa-images me-2"></i><span>Galeri</span></a></li>
+            <li class="menu-item"><a href="admin_activity.php"><i class="fas fa-chart-line me-2"></i><span>Aktivitas</span></a></li>
+            <li class="menu-item"><a href="admin_booking.php"><i class="fas fa-calendar-check me-2"></i><span>Peminjaman</span></a></li>
+            <li class="menu-item"><a href="admin_absent.php"><i class="fas fa-clipboard-list me-2"></i><span>Kehadiran</span></a></li>
             <li class="menu-item">
-            <a href="admin_guestbook.php"><i class="fas fa-envelope-open-text me-2"></i><span>Guest Book</span></a>
+            <a href="admin_guestbook.php"><i class="fas fa-envelope-open-text me-2"></i><span>Buku Tamu</span></a>
             </li>
         </ul>
     </div>
@@ -244,13 +244,13 @@ $team_members = $team->read();
         <div class="content-header mb-4">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h1 class="h3 mb-0 text-gray-800">Manage Team</h1>
+                    <h1 class="h3 mb-0 text-gray-800">Manajemen Tim</h1>
                     <p class="text-muted small">Kelola anggota tim dan dosen</p>
                 </div>
                 <?php if(!$show_form): ?>
-                    <a href="admin_team.php?action=add" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Add Member</a>
+                    <a href="admin_team.php?action=add" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Tambah Anggota</a>
                 <?php else: ?>
-                    <a href="admin_team.php" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> Back to List</a>
+                    <a href="admin_team.php" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar</a>
                 <?php endif; ?>
             </div>
         </div>
@@ -273,7 +273,7 @@ $team_members = $team->read();
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-warning text-dark py-3"> 
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-edit me-2"></i> <?php echo $edit_mode ? 'Edit Team Member' : 'Add New Member'; ?>
+                        <i class="fas fa-edit me-2"></i> <?php echo $edit_mode ? 'Edit Anggota Tim' : 'Tambah Anggota Baru'; ?>
                     </h5>
                 </div>
                 <div class="card-body p-4">
@@ -285,12 +285,12 @@ $team_members = $team->read();
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Full Name *</label>
+                                <label class="form-label fw-bold">Nama Lengkap *</label>
                                 <input type="text" class="form-control" name="name" required 
                                        value="<?php echo $edit_mode ? htmlspecialchars($edit_data['name']) : ''; ?>">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Position *</label>
+                                <label class="form-label fw-bold">Posisi *</label>
                                 <input type="text" class="form-control" name="position" required 
                                        value="<?php echo $edit_mode ? htmlspecialchars($edit_data['position']) : ''; ?>">
                             </div>
@@ -306,7 +306,7 @@ $team_members = $team->read();
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Phone</label>
+                                <label class="form-label">Telepon</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-phone"></i></span>
                                     <input type="text" class="form-control" name="phone" 
@@ -316,53 +316,53 @@ $team_members = $team->read();
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Photo</label>
+                            <label class="form-label">Foto</label>
                             <div class="input-group mb-2">
                                 <input type="file" class="form-control" name="photo_file" accept="image/*">
                             </div>
                             
                             <?php if($edit_mode && !empty($edit_data['photo'])): ?>
                                 <div class="d-flex align-items-center gap-3">
-                                    <div class="small text-muted">Current Photo:</div>
+                                    <div class="small text-muted">Foto saat ini:</div>
                                     <img src="<?php echo htmlspecialchars($edit_data['photo']); ?>" 
                                          alt="Current" 
                                          style="height: 60px; width: 60px; object-fit: cover; border-radius: 50%; border: 1px solid #ddd;">
                                 </div>
                             <?php endif; ?>
-                            <small class="form-text text-muted">Recommended: Square image (1:1), JPG/PNG.</small>
+                            <small class="form-text text-muted">Rekomendasi: Gambar persegi (1:1), format JPG/PNG.</small>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Bio / Description</label>
+                            <label class="form-label">Bio / Deskripsi</label>
                             <textarea class="form-control" name="bio" rows="3"><?php echo $edit_mode ? htmlspecialchars($edit_data['bio']) : ''; ?></textarea>
                         </div>
 
                         <div class="card bg-light border mb-4">
                             <div class="card-body">
                                 <h6 class="text-primary border-bottom pb-2 mb-3 fw-bold">
-                                    <i class="fas fa-university me-2"></i>Academic Details
+                                    <i class="fas fa-university me-2"></i>Detail Akademik
                                 </h6>
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label class="form-label fw-bold">NIP</label>
-                                        <input type="text" class="form-control" name="nip" placeholder="Ex: 1990..."
+                                        <input type="text" class="form-control" name="nip" placeholder="Contoh: 1990..."
                                                value="<?php echo $edit_mode ? htmlspecialchars($details_data['nip'] ?? '') : ''; ?>">
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label class="form-label fw-bold">NIDN</label>
-                                        <input type="text" class="form-control" name="nidn" placeholder="Ex: 001..."
+                                        <input type="text" class="form-control" name="nidn" placeholder="Contoh: 001..."
                                                value="<?php echo $edit_mode ? htmlspecialchars($details_data['nidn'] ?? '') : ''; ?>">
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label class="form-label fw-bold">Program Studi</label>
-                                        <input type="text" class="form-control" name="prodi" placeholder="Ex: Teknik Informatika"
+                                        <input type="text" class="form-control" name="prodi" placeholder="Contoh: Teknik Informatika"
                                                value="<?php echo $edit_mode ? htmlspecialchars($details_data['prodi'] ?? '') : ''; ?>">
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold">Pendidikan (Education)</label>
-                                        <textarea class="form-control" name="education" rows="3" placeholder="S1 - Kampus&#10;S2 - Kampus"><?php 
+                                        <label class="form-label fw-bold">Pendidikan</label>
+                                        <textarea class="form-control" name="education" rows="3" placeholder="S1 - Nama Kampus&#10;S2 - Nama Kampus"><?php 
                                             if($edit_mode && !empty($details_data['education'])) {
                                                 echo implode("\n", $details_data['education']);
                                             }
@@ -370,8 +370,8 @@ $team_members = $team->read();
                                         <small class="text-muted">Gunakan Enter untuk baris baru.</small>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold">Sertifikasi (Certifications)</label>
-                                        <textarea class="form-control" name="certifications" rows="3" placeholder="Certified A&#10;Certified B"><?php 
+                                        <label class="form-label fw-bold">Sertifikasi</label>
+                                        <textarea class="form-control" name="certifications" rows="3" placeholder="Sertifikasi A&#10;Sertifikasi B"><?php 
                                             if($edit_mode && !empty($details_data['certifications'])) {
                                                 echo implode("\n", $details_data['certifications']);
                                             }
@@ -381,7 +381,7 @@ $team_members = $team->read();
                             </div>
                         </div>
                         <h6 class="border-bottom pb-2 mb-3 fw-bold">
-                            <i class="fas fa-share-alt me-2"></i>Social Media Links
+                            <i class="fas fa-share-alt me-2"></i>Media Sosial
                         </h6>
                         
                         <div class="row">
@@ -420,7 +420,7 @@ $team_members = $team->read();
                         </div>
 
                         <h6 class="border-bottom pb-2 mb-3 mt-4 fw-bold">
-                            <i class="fas fa-graduation-cap me-2"></i>Academic & Research Profiles
+                            <i class="fas fa-graduation-cap me-2"></i>Profil Akademik & Riset
                         </h6>
                         
                         <div class="row">
@@ -469,25 +469,49 @@ $team_members = $team->read();
                         <div class="mb-3">
                             <label class="form-label">Status</label>
                             <select class="form-select" name="status">
-                                <option value="active" <?php echo ($edit_mode && $edit_data['status'] == 'active') ? 'selected' : ''; ?>>Active</option>
-                                <option value="inactive" <?php echo ($edit_mode && $edit_data['status'] == 'inactive') ? 'selected' : ''; ?>>Inactive</option>
+                                <option value="active" <?php echo ($edit_mode && $edit_data['status'] == 'active') ? 'selected' : ''; ?>>Aktif</option>
+                                <option value="inactive" <?php echo ($edit_mode && $edit_data['status'] == 'inactive') ? 'selected' : ''; ?>>Tidak Aktif</option>
                             </select>
                         </div>
 
                         <div class="d-flex gap-2 mt-4">
                             <button type="submit" name="<?php echo $edit_mode ? 'update_member' : 'add_member'; ?>" 
                                     class="btn btn-warning px-4 text-dark fw-bold">
-                                <i class="fas fa-save me-1"></i> <?php echo $edit_mode ? 'Update Changes' : 'Save Member'; ?>
+                                <i class="fas fa-save me-1"></i> <?php echo $edit_mode ? 'Perbarui Perubahan' : 'Simpan Anggota'; ?>
                             </button>
-                            <a href="admin_team.php" class="btn btn-secondary px-4"><i class="fas fa-times me-1"></i> Cancel</a>
+                            <a href="admin_team.php" class="btn btn-secondary px-4"><i class="fas fa-times me-1"></i> Batal</a>
                         </div>
                     </form>
                 </div>
             </div>
         <?php else: ?>
+            <?php if($team_members->rowCount() > 0): ?>
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card bg-white border-0 shadow-sm">
+                        <div class="card-body py-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-users text-primary me-2"></i>
+                                    <span class="fw-bold">Total Anggota Tim: <?php echo $team_members->rowCount(); ?></span>
+                                </div>
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Klik edit untuk mengubah data anggota
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+            
             <div class="row">
                 <?php if($team_members->rowCount() > 0): ?>
-                    <?php while($member = $team_members->fetch(PDO::FETCH_ASSOC)): ?>
+                    <?php 
+                    $stmt = $team->read(); // Reset pointer
+                    while($member = $stmt->fetch(PDO::FETCH_ASSOC)): 
+                    ?>
                     <div class="col-md-4 mb-4">
                         <div class="card h-100 shadow-sm border-0">
                             <div class="card-body text-center">
@@ -500,16 +524,25 @@ $team_members = $team->read();
                                 </div>
                                 <h5 class="card-title fw-bold mb-1"><?php echo htmlspecialchars($member['name']); ?></h5>
                                 <p class="text-primary small mb-2"><?php echo htmlspecialchars($member['position']); ?></p>
+                                <div class="mt-3">
+                                    <span class="badge bg-<?php echo $member['status'] == 'active' ? 'success' : 'secondary'; ?>">
+                                        <?php echo $member['status'] == 'active' ? 'Aktif' : 'Tidak Aktif'; ?>
+                                    </span>
+                                </div>
                             </div>
                             <div class="card-footer bg-white border-top-0 pb-3 pt-0 text-center">
-                                <a href="admin_team.php?action=edit&id=<?php echo $member['id']; ?>" class="btn btn-sm btn-outline-warning"><i class="fas fa-edit"></i> Edit</a>
-                                <a href="admin_team.php?delete_id=<?php echo $member['id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this member? Picture will be deleted too.')"><i class="fas fa-trash"></i> Delete</a>
+                                <a href="admin_team.php?action=edit&id=<?php echo $member['id']; ?>" class="btn btn-sm btn-outline-warning"><i class="fas fa-edit me-1"></i> Edit</a>
+                                <a href="admin_team.php?delete_id=<?php echo $member['id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Hapus anggota ini? Foto akan ikut terhapus.')"><i class="fas fa-trash me-1"></i> Hapus</a>
                             </div>
                         </div>
                     </div>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <div class="col-12 text-center py-5 text-muted"><p>No team members found.</p></div>
+                    <div class="col-12 text-center py-5 text-muted">
+                        <i class="fas fa-users fa-3x mb-3 d-block"></i>
+                        <h5>Belum Ada Anggota Tim</h5>
+                        <p>Klik "Tambah Anggota" untuk menambahkan anggota pertama.</p>
+                    </div>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
@@ -517,8 +550,21 @@ $team_members = $team->read();
 </div>
 
 <style>
-    .sidebar-header { text-align: center; padding: 1rem; border-bottom: 1px solid #dee2e6; margin-bottom: 1rem; }
-    .admin-container { background-color: #f8f9fa; min-height: 100vh; }
+    .sidebar-header { 
+        text-align: center; 
+        padding: 1rem; 
+        border-bottom: 1px solid #06305aff; 
+        margin-bottom: 1rem; 
+    }
+    .admin-container { 
+        background-color: #06305aff; 
+        min-height: 100vh; 
+    }
+    .table th {
+        background-color: #06305aff;
+        font-weight: 600;
+        padding: 12px 16px;
+    }
 </style>
 
 <?php include_once 'includes/footer.php'; ?>

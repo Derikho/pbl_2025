@@ -1,5 +1,5 @@
 <?php
-$page_title = "Manage News - LET Lab Admin";
+$page_title = "Manajemen Berita - Admin LET Lab";
 include_once 'includes/header.php';
 
 // 1. Cek Sesi Admin
@@ -52,10 +52,10 @@ function uploadNewsImage($fileInputName, $targetDir = "uploads/news/") {
 // --- HANDLE FORM SUBMISSION (POST) ---
 if($_SERVER["REQUEST_METHOD"] == "POST"){
 
-    // A. ADD NEWS
+    // A. TAMBAH BERITA
     if(isset($_POST['add_news'])){
         if(empty($_POST['title']) || empty($_POST['content'])) {
-            $error_msg = "Title and Content are required!";
+            $error_msg = "Judul dan Konten wajib diisi!";
         } else {
             $news->title = $_POST['title'];
             $news->content = $_POST['content'];
@@ -77,17 +77,17 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
             if(!isset($error_msg)){
                 if($news->create()){
-                    $_SESSION['message'] = "News article added successfully!";
+                    $_SESSION['message'] = "Artikel berita berhasil ditambahkan!";
                     echo "<script>window.location.href='admin_news.php';</script>";
                     exit;
                 } else {
-                    $error_msg = "Failed to save to database.";
+                    $error_msg = "Gagal menyimpan ke database.";
                 }
             }
         }
     }
 
-    // B. UPDATE NEWS
+    // B. UPDATE BERITA
     if(isset($_POST['update_news'])){
         $news->id = $_POST['id'];
         $news->title = $_POST['title'];
@@ -117,11 +117,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
         if(!isset($error_msg)){
             if($news->update()){
-                $_SESSION['message'] = "News article updated successfully!";
+                $_SESSION['message'] = "Artikel berita berhasil diperbarui!";
                 echo "<script>window.location.href='admin_news.php';</script>";
                 exit;
             } else {
-                $error_msg = "Failed to update data.";
+                $error_msg = "Gagal memperbarui data.";
             }
         }
     }
@@ -143,7 +143,7 @@ if(isset($_GET['delete_id'])){
             unlink($row['thumbnail_url']);
         }
 
-        $_SESSION['message'] = "News deleted successfully!";
+        $_SESSION['message'] = "Berita berhasil dihapus!";
         echo "<script>window.location.href='admin_news.php';</script>";
         exit;
     }
@@ -175,7 +175,7 @@ $news_articles = $news->read();
         <a class="navbar-brand text-white" href="admin_dashboard.php">
             <div class="admin-logo">
                 <i class="fas fa-crown me-2"></i>
-                <span>Admin Panel</span>
+                <span>Panel Admin</span>
             </div>
         </a>
         <div class="navbar-actions ms-auto">
@@ -184,7 +184,7 @@ $news_articles = $news->read();
                 <span class="admin-name"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
             </div>
             <a href="logout.php" class="btn btn-sm btn-outline-light">
-                <i class="fas fa-sign-out-alt"></i> Sign Out
+                <i class="fas fa-sign-out-alt"></i> Keluar
             </a>
         </div>
     </div>
@@ -194,41 +194,41 @@ $news_articles = $news->read();
     
     <div class="admin-sidebar">
         <div class="sidebar-header">
-            <h5 class="mb-0">Navigation</h5>
+            <h5 class="mb-0">Navigasi</h5>
         </div>
         <ul class="sidebar-menu">
             <li class="menu-item">
                 <a href="admin_dashboard.php"><i class="fas fa-tachometer-alt me-2"></i><span>Dashboard</span></a>
             </li>
             <li class="menu-item">
-                <a href="admin_users.php"><i class="fas fa-users-cog me-2"></i><span>Users</span></a>
+                <a href="admin_users.php"><i class="fas fa-users-cog me-2"></i><span>Pengguna</span></a>
             </li>
             <li class="menu-item">
-                <a href="admin_partners.php"><i class="fas fa-handshake me-2"></i><span>Partners</span></a>
+                <a href="admin_partners.php"><i class="fas fa-handshake me-2"></i><span>Mitra</span></a>
             </li>
             <li class="menu-item">
-                <a href="admin_team.php"><i class="fas fa-users me-2"></i><span>Team</span></a>
+                <a href="admin_team.php"><i class="fas fa-users me-2"></i><span>Tim</span></a>
             </li>
             <li class="menu-item">
-                <a href="admin_products.php"><i class="fas fa-box me-2"></i><span>Products</span></a>
+                <a href="admin_products.php"><i class="fas fa-box me-2"></i><span>Produk</span></a>
             </li>
             <li class="menu-item active">
-                <a href="admin_news.php"><i class="fas fa-newspaper me-2"></i><span>News</span></a>
+                <a href="admin_news.php"><i class="fas fa-newspaper me-2"></i><span>Berita</span></a>
             </li>
             <li class="menu-item">
-                <a href="admin_gallery.php"><i class="fas fa-images me-2"></i><span>Gallery</span></a>
+                <a href="admin_gallery.php"><i class="fas fa-images me-2"></i><span>Galeri</span></a>
             </li>
             <li class="menu-item">
-                <a href="admin_activity.php"><i class="fas fa-chart-line me-2"></i><span>Activity</span></a>
+                <a href="admin_activity.php"><i class="fas fa-chart-line me-2"></i><span>Aktivitas</span></a>
             </li>
             <li class="menu-item">
-                <a href="admin_booking.php"><i class="fas fa-calendar-check me-2"></i><span>Booking</span></a>
+                <a href="admin_booking.php"><i class="fas fa-calendar-check me-2"></i><span>Peminjaman</span></a>
             </li>
             <li class="menu-item">
-                <a href="admin_absent.php"><i class="fas fa-clipboard-list me-2"></i><span>Absent</span></a>
+                <a href="admin_absent.php"><i class="fas fa-clipboard-list me-2"></i><span>Kehadiran</span></a>
             </li>
             <li class="menu-item">
-            <a href="admin_guestbook.php"><i class="fas fa-envelope-open-text me-2"></i><span>Guest Book</span></a>
+            <a href="admin_guestbook.php"><i class="fas fa-envelope-open-text me-2"></i><span>Buku Tamu</span></a>
             </li>
         </ul>
     </div>
@@ -237,16 +237,16 @@ $news_articles = $news->read();
         <div class="content-header mb-4">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h1 class="h3 mb-0 text-gray-800">Manage News</h1>
-                    <p class="text-muted small">Create and manage news articles</p>
+                    <h1 class="h3 mb-0 text-gray-800">Manajemen Berita</h1>
+                    <p class="text-muted small">Buat dan kelola artikel berita</p>
                 </div>
                 <?php if(!$show_form): ?>
                     <a href="admin_news.php?action=add" class="btn btn-primary">
-                        <i class="fas fa-plus me-1"></i> Add News
+                        <i class="fas fa-plus me-1"></i> Tambah Berita
                     </a>
                 <?php else: ?>
                     <a href="admin_news.php" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-1"></i> Back to List
+                        <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar
                     </a>
                 <?php endif; ?>
             </div>
@@ -273,7 +273,7 @@ $news_articles = $news->read();
                 <div class="card-header bg-<?php echo $edit_mode ? 'warning' : 'primary'; ?> text-white py-3">
                     <h5 class="card-title mb-0">
                         <i class="fas fa-<?php echo $edit_mode ? 'edit' : 'newspaper'; ?> me-2"></i>
-                        <?php echo $edit_mode ? 'Edit News Article' : 'Add New Article'; ?>
+                        <?php echo $edit_mode ? 'Edit Artikel Berita' : 'Tambah Artikel Baru'; ?>
                     </h5>
                 </div>
                 <div class="card-body p-4">
@@ -284,37 +284,37 @@ $news_articles = $news->read();
                         <?php endif; ?>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Article Title *</label>
+                            <label class="form-label fw-bold">Judul Artikel *</label>
                             <input type="text" class="form-control form-control-lg" name="title" required 
-                                   placeholder="Enter article title..."
+                                   placeholder="Masukkan judul artikel..."
                                    value="<?php echo $edit_mode ? htmlspecialchars($edit_data['title']) : ''; ?>">
-                            <small class="form-text text-muted">Slug will be generated automatically</small>
+                            <small class="form-text text-muted">Slug akan dibuat secara otomatis</small>
                         </div>
 
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Category</label>
+                                <label class="form-label">Kategori</label>
                                 <select class="form-select" name="category">
-                                    <option value="General" <?php echo ($edit_mode && $edit_data['category'] == 'General') ? 'selected' : ''; ?>>General</option>
-                                    <option value="Research" <?php echo ($edit_mode && $edit_data['category'] == 'Research') ? 'selected' : ''; ?>>Research</option>
-                                    <option value="Events" <?php echo ($edit_mode && $edit_data['category'] == 'Events') ? 'selected' : ''; ?>>Events</option>
-                                    <option value="Achievement" <?php echo ($edit_mode && $edit_data['category'] == 'Achievement') ? 'selected' : ''; ?>>Achievement</option>
-                                    <option value="Technology" <?php echo ($edit_mode && $edit_data['category'] == 'Technology') ? 'selected' : ''; ?>>Technology</option>
-                                    <option value="Education" <?php echo ($edit_mode && $edit_data['category'] == 'Education') ? 'selected' : ''; ?>>Education</option>
+                                    <option value="General" <?php echo ($edit_mode && $edit_data['category'] == 'General') ? 'selected' : ''; ?>>Umum</option>
+                                    <option value="Research" <?php echo ($edit_mode && $edit_data['category'] == 'Research') ? 'selected' : ''; ?>>Penelitian</option>
+                                    <option value="Events" <?php echo ($edit_mode && $edit_data['category'] == 'Events') ? 'selected' : ''; ?>>Acara</option>
+                                    <option value="Achievement" <?php echo ($edit_mode && $edit_data['category'] == 'Achievement') ? 'selected' : ''; ?>>Prestasi</option>
+                                    <option value="Technology" <?php echo ($edit_mode && $edit_data['category'] == 'Technology') ? 'selected' : ''; ?>>Teknologi</option>
+                                    <option value="Education" <?php echo ($edit_mode && $edit_data['category'] == 'Education') ? 'selected' : ''; ?>>Pendidikan</option>
                                 </select>
                             </div>
 
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Status</label>
                                 <select class="form-select" name="status">
-                                    <option value="published" <?php echo ($edit_mode && $edit_data['status'] == 'published') ? 'selected' : ''; ?>>Published</option>
-                                    <option value="draft" <?php echo ($edit_mode && $edit_data['status'] == 'draft') ? 'selected' : ''; ?>>Draft</option>
-                                    <option value="archived" <?php echo ($edit_mode && $edit_data['status'] == 'archived') ? 'selected' : ''; ?>>Archived</option>
+                                    <option value="published" <?php echo ($edit_mode && $edit_data['status'] == 'published') ? 'selected' : ''; ?>>Terbit</option>
+                                    <option value="draft" <?php echo ($edit_mode && $edit_data['status'] == 'draft') ? 'selected' : ''; ?>>Draf</option>
+                                    <option value="archived" <?php echo ($edit_mode && $edit_data['status'] == 'archived') ? 'selected' : ''; ?>>Arsip</option>
                                 </select>
                             </div>
 
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Publish Date</label>
+                                <label class="form-label">Tanggal Publikasi</label>
                                 <input type="datetime-local" class="form-control" name="publish_date"
                                        value="<?php 
                                        if($edit_mode && !empty($edit_data['publish_date'])) {
@@ -327,44 +327,71 @@ $news_articles = $news->read();
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Thumbnail Image</label>
+                            <label class="form-label">Gambar Thumbnail</label>
                             <input type="file" class="form-control" name="image_file" accept="image/*">
                             
                             <?php if($edit_mode && !empty($edit_data['image_url'])): ?>
                                 <div class="mt-2 p-2 border rounded bg-light d-inline-block">
-                                    <div class="small text-muted mb-1">Current Thumbnail:</div>
+                                    <div class="small text-muted mb-1">Thumbnail saat ini:</div>
                                     <img src="<?php echo htmlspecialchars($edit_data['image_url']); ?>" 
                                          alt="Current" 
                                          style="height: 80px; width: auto; object-fit: cover;">
                                 </div>
                             <?php endif; ?>
-                            <small class="form-text text-muted d-block mt-1">Allowed formats: JPG, PNG, WEBP. Max size: 5MB.</small>
+                            <small class="form-text text-muted d-block mt-1">Format yang diperbolehkan: JPG, PNG, WEBP. Ukuran maks: 5MB.</small>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Article Content *</label>
+                            <label class="form-label fw-bold">Konten Artikel *</label>
                             <textarea class="form-control" name="content" rows="12" required 
-                                      placeholder="Write your article content here..."><?php echo $edit_mode ? htmlspecialchars($edit_data['content']) : ''; ?></textarea>
-                            <small class="form-text text-muted">You can use HTML tags for formatting</small>
+                                      placeholder="Tulis konten artikel Anda di sini..."><?php echo $edit_mode ? htmlspecialchars($edit_data['content']) : ''; ?></textarea>
+                            <small class="form-text text-muted">Anda dapat menggunakan tag HTML untuk pemformatan</small>
                         </div>
 
                         <div class="d-flex gap-2 mt-4">
                             <button type="submit" name="<?php echo $edit_mode ? 'update_news' : 'add_news'; ?>" 
                                     class="btn btn-<?php echo $edit_mode ? 'warning' : 'primary'; ?> px-4">
                                 <i class="fas fa-save me-1"></i>
-                                <?php echo $edit_mode ? 'Update Article' : 'Publish Article'; ?>
+                                <?php echo $edit_mode ? 'Perbarui Artikel' : 'Terbitkan Artikel'; ?>
                             </button>
                             <a href="admin_news.php" class="btn btn-secondary px-4">
-                                <i class="fas fa-times me-1"></i> Cancel
+                                <i class="fas fa-times me-1"></i> Batal
                             </a>
                         </div>
                     </form>
                 </div>
             </div>
         <?php else: ?>
+            <?php if($news_articles->rowCount() > 0): ?>
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card bg-white border-0 shadow-sm">
+                        <div class="card-body py-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-newspaper text-primary me-2"></i>
+                                    <span class="fw-bold">Total Artikel: <?php echo $news_articles->rowCount(); ?></span>
+                                </div>
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Klik edit untuk mengubah artikel
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+            
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white py-3">
-                    <h5 class="card-title mb-0">News Articles List</h5>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Daftar Artikel Berita</h5>
+                        <div class="badge bg-primary px-3 py-2">
+                            <i class="fas fa-newspaper me-1"></i>
+                            <?php echo $news_articles ? $news_articles->rowCount() : 0; ?> Artikel
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -372,16 +399,19 @@ $news_articles = $news->read();
                             <thead class="table-light">
                                 <tr>
                                     <th width="5%">#</th>
-                                    <th width="40%">Title</th>
-                                    <th width="12%">Category</th>
-                                    <th width="13%">Date</th>
+                                    <th width="40%">Judul</th>
+                                    <th width="12%">Kategori</th>
+                                    <th width="13%">Tanggal</th>
                                     <th width="10%">Status</th>
-                                    <th width="20%" class="text-end">Actions</th>
+                                    <th width="20%" class="text-end">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if($news_articles->rowCount() > 0): ?>
-                                    <?php while($article = $news_articles->fetch(PDO::FETCH_ASSOC)): ?>
+                                    <?php 
+                                    $stmt = $news->read(); // Reset pointer
+                                    while($article = $stmt->fetch(PDO::FETCH_ASSOC)): 
+                                    ?>
                                     <tr>
                                         <td><?php echo $article['id']; ?></td>
                                         <td>
@@ -409,34 +439,51 @@ $news_articles = $news->read();
                                         </td>
                                         <td>
                                             <span class="badge bg-info text-dark">
-                                                <?php echo htmlspecialchars($article['category'] ?? 'General'); ?>
+                                                <?php 
+                                                $kategori = [
+                                                    'General' => 'Umum',
+                                                    'Research' => 'Penelitian',
+                                                    'Events' => 'Acara',
+                                                    'Achievement' => 'Prestasi',
+                                                    'Technology' => 'Teknologi',
+                                                    'Education' => 'Pendidikan'
+                                                ];
+                                                echo $kategori[$article['category']] ?? $article['category'];
+                                                ?>
                                             </span>
                                         </td>
                                         <td>
-                                            <small><?php echo date('M j, Y', strtotime($article['publish_date'])); ?></small>
+                                            <small><?php echo date('d M Y', strtotime($article['publish_date'])); ?></small>
                                             <br>
                                             <small class="text-muted"><?php echo date('H:i', strtotime($article['publish_date'])); ?></small>
                                         </td>
                                         <td>
                                             <?php 
                                             $badge_class = 'secondary';
-                                            if($article['status'] == 'published') $badge_class = 'success';
-                                            elseif($article['status'] == 'draft') $badge_class = 'warning';
+                                            $status_text = 'Arsip';
+                                            
+                                            if($article['status'] == 'published') {
+                                                $badge_class = 'success';
+                                                $status_text = 'Terbit';
+                                            } elseif($article['status'] == 'draft') {
+                                                $badge_class = 'warning';
+                                                $status_text = 'Draf';
+                                            }
                                             ?>
                                             <span class="badge bg-<?php echo $badge_class; ?>">
-                                                <?php echo ucfirst($article['status']); ?>
+                                                <?php echo $status_text; ?>
                                             </span>
                                         </td>
                                         <td class="text-end">
                                             <div class="btn-group">
                                                 <a href="admin_news.php?action=edit&id=<?php echo $article['id']; ?>" 
                                                    class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-edit"></i> Edit
+                                                    <i class="fas fa-edit me-1"></i> Edit
                                                 </a>
                                                 <a href="admin_news.php?delete_id=<?php echo $article['id']; ?>" 
                                                    class="btn btn-sm btn-outline-danger"
-                                                   onclick="return confirm('Are you sure you want to delete this article? Image will be deleted too.')">
-                                                    <i class="fas fa-trash"></i> Delete
+                                                   onclick="return confirm('Yakin ingin menghapus artikel ini? Gambar akan ikut terhapus.')">
+                                                    <i class="fas fa-trash me-1"></i> Hapus
                                                 </a>
                                             </div>
                                         </td>
@@ -446,8 +493,8 @@ $news_articles = $news->read();
                                     <tr>
                                         <td colspan="6" class="text-center py-5 text-muted">
                                             <i class="fas fa-newspaper fa-3x mb-3 d-block"></i>
-                                            <h5>No News Articles Yet</h5>
-                                            <p>Click "Add News" to create your first article.</p>
+                                            <h5>Belum Ada Artikel Berita</h5>
+                                            <p>Klik "Tambah Berita" untuk membuat artikel pertama.</p>
                                         </td>
                                     </tr>
                                 <?php endif; ?>
@@ -464,12 +511,21 @@ $news_articles = $news->read();
     .sidebar-header {
         text-align: center;
         padding: 1rem;
-        border-bottom: 1px solid #dee2e6;
+        border-bottom: 1px solid #06305aff;
         margin-bottom: 1rem;
     }
     .admin-container {
-        background-color: #f8f9fa;
+        background-color: #06305aff;
         min-height: 100vh;
+    }
+    .table th {
+        background-color: #06305aff;
+        font-weight: 600;
+        padding: 12px 16px;
+    }
+    .table td {
+        padding: 12px 16px;
+        vertical-align: middle;
     }
 </style>
 

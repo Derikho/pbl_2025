@@ -1,5 +1,5 @@
 <?php
-$page_title = "Product Management - Admin";
+$page_title = "Manajemen Produk - Admin LET Lab";
 include_once 'includes/header.php';
 
 // 1. Cek Login Admin
@@ -50,18 +50,41 @@ function uploadProductImage($fileInputName, $targetDir = "uploads/products/") {
     return false;
 }
 
+// --- FUNGSI UNTUK MEMBERSIHKAN INPUT HARGA ---
+function cleanPriceInput($price) {
+    if (empty($price) || trim($price) === '') {
+        return 0;
+    }
+    
+    // Hapus karakter non-numeric kecuali titik dan koma
+    $cleaned = preg_replace('/[^0-9.,]/', '', $price);
+    
+    // Jika ada koma sebagai pemisah ribuan, hapus
+    $cleaned = str_replace(',', '', $cleaned);
+    
+    // Konversi ke float
+    $result = (float)$cleaned;
+    
+    // Pastikan tidak negatif
+    return max(0, $result);
+}
+
 // --- HANDLE FORM SUBMISSION (POST) ---
 if($_SERVER["REQUEST_METHOD"] == "POST"){
 
-    // A. TAMBAH PRODUCT (CREATE)
+    // A. TAMBAH PRODUK (CREATE)
     if(isset($_POST['add_product'])){
         if(empty($_POST['name'])) {
-            $error_msg = "Product name is required!";
+            $error_msg = "Nama produk wajib diisi!";
         } else {
-            $product->name = $_POST['name'];
-            $product->description = $_POST['description'] ?? '';
-            $product->price = $_POST['price'] ?? 0;
-            $product->link_demo = $_POST['link_demo'] ?? ''; 
+            $product->name = trim($_POST['name']);
+            $product->description = trim($_POST['description'] ?? '');
+            
+            // FIX: Bersihkan input harga dan pastikan numeric
+            $rawPrice = $_POST['price'] ?? '0';
+            $product->price = cleanPriceInput($rawPrice);
+            
+            $product->link_demo = trim($_POST['link_demo'] ?? ''); 
             
             // Handle Upload Image
             $imagePath = '';
@@ -77,23 +100,27 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             
             if(!isset($error_msg)){
                 if($product->create()){
-                    $_SESSION['message'] = "Product added successfully!";
+                    $_SESSION['message'] = "Produk berhasil ditambahkan!";
                     echo "<script>window.location.href='admin_products.php';</script>";
                     exit;
                 } else {
-                    $error_msg = "Failed to save to database.";
+                    $error_msg = "Gagal menyimpan ke database.";
                 }
             }
         }
     }
 
-    // B. UPDATE PRODUCT
+    // B. UPDATE PRODUK
     if(isset($_POST['update_product'])){
-        $product->id = $_POST['id'];
-        $product->name = $_POST['name'];
-        $product->description = $_POST['description'];
-        $product->price = $_POST['price'];
-        $product->link_demo = $_POST['link_demo'];
+        $product->id = (int)$_POST['id'];
+        $product->name = trim($_POST['name']);
+        $product->description = trim($_POST['description']);
+        
+        // FIX: Bersihkan input harga dan pastikan numeric untuk update
+        $rawPrice = $_POST['price'] ?? '0';
+        $product->price = cleanPriceInput($rawPrice);
+        
+        $product->link_demo = trim($_POST['link_demo']);
         
         // Handle Upload Image Update
         if(!empty($_FILES["image_file"]["name"])){
@@ -116,11 +143,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         
         if(!isset($error_msg)){
             if($product->update()){
-                $_SESSION['message'] = "Product updated successfully!";
+                $_SESSION['message'] = "Produk berhasil diperbarui!";
                 echo "<script>window.location.href='admin_products.php';</script>";
                 exit;
             } else {
-                $error_msg = "Failed to update data.";
+                $error_msg = "Gagal memperbarui data.";
             }
         }
     }
@@ -128,7 +155,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
 // --- HANDLE DELETE (GET) ---
 if(isset($_GET['delete_id'])){
-    $delete_id = $_GET['delete_id'];
+    $delete_id = (int)$_GET['delete_id'];
     
     // Ambil path gambar dulu untuk dihapus
     $stmt = $db->prepare("SELECT image_url FROM products WHERE product_id = ?");
@@ -142,7 +169,7 @@ if(isset($_GET['delete_id'])){
             unlink($row['image_url']);
         }
 
-        $_SESSION['message'] = "Product deleted successfully!";
+        $_SESSION['message'] = "Produk berhasil dihapus!";
         echo "<script>window.location.href='admin_products.php';</script>";
         exit;
     }
@@ -174,7 +201,7 @@ $products = $product->read();
         <a class="navbar-brand text-white" href="admin_dashboard.php">
             <div class="admin-logo">
                 <i class="fas fa-crown me-2"></i>
-                <span>Admin Panel</span>
+                <span>Panel Admin</span>
             </div>
         </a>
         <div class="navbar-actions ms-auto">
@@ -183,7 +210,7 @@ $products = $product->read();
                 <span class="admin-name"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
             </div>
             <a href="#" class="btn btn-sm btn-outline-light" class="text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                <i class="fas fa-sign-out-alt"></i> Sign Out
+                <i class="fas fa-sign-out-alt"></i> Keluar
             </a>
         </div>
     </div>
@@ -193,21 +220,21 @@ $products = $product->read();
     
     <div class="admin-sidebar">
         <div class="sidebar-header">
-            <h5 class="mb-0">Navigation</h5>
+            <h5 class="mb-0">Navigasi</h5>
         </div>
         <ul class="sidebar-menu">
             <li class="menu-item"><a href="admin_dashboard.php"><i class="fas fa-tachometer-alt me-2"></i><span>Dashboard</span></a></li>
-            <li class="menu-item"><a href="admin_users.php"><i class="fas fa-users-cog me-2"></i><span>Users</span></a></li>
-            <li class="menu-item"><a href="admin_partners.php"><i class="fas fa-handshake me-2"></i><span>Partners</span></a></li>
-            <li class="menu-item"><a href="admin_team.php"><i class="fas fa-users me-2"></i><span>Team</span></a></li>
-            <li class="menu-item active"><a href="admin_products.php"><i class="fas fa-box me-2"></i><span>Products</span></a></li>
-            <li class="menu-item"><a href="admin_news.php"><i class="fas fa-newspaper me-2"></i><span>News</span></a></li>
-            <li class="menu-item"><a href="admin_gallery.php"><i class="fas fa-images me-2"></i><span>Gallery</span></a></li>
-            <li class="menu-item"><a href="admin_activity.php"><i class="fas fa-chart-line me-2"></i><span>Activity</span></a></li>
-            <li class="menu-item"><a href="admin_booking.php"><i class="fas fa-calendar-check me-2"></i><span>Booking</span></a></li>
-            <li class="menu-item"><a href="admin_absent.php"><i class="fas fa-clipboard-list me-2"></i><span>Absent</span></a></li>
+            <li class="menu-item"><a href="admin_users.php"><i class="fas fa-users-cog me-2"></i><span>Pengguna</span></a></li>
+            <li class="menu-item"><a href="admin_partners.php"><i class="fas fa-handshake me-2"></i><span>Mitra</span></a></li>
+            <li class="menu-item"><a href="admin_team.php"><i class="fas fa-users me-2"></i><span>Tim</span></a></li>
+            <li class="menu-item active"><a href="admin_products.php"><i class="fas fa-box me-2"></i><span>Produk</span></a></li>
+            <li class="menu-item"><a href="admin_news.php"><i class="fas fa-newspaper me-2"></i><span>Berita</span></a></li>
+            <li class="menu-item"><a href="admin_gallery.php"><i class="fas fa-images me-2"></i><span>Galeri</span></a></li>
+            <li class="menu-item"><a href="admin_activity.php"><i class="fas fa-chart-line me-2"></i><span>Aktivitas</span></a></li>
+            <li class="menu-item"><a href="admin_booking.php"><i class="fas fa-calendar-check me-2"></i><span>Peminjaman</span></a></li>
+            <li class="menu-item"><a href="admin_absent.php"><i class="fas fa-clipboard-list me-2"></i><span>Kehadiran</span></a></li>
             <li class="menu-item">
-            <a href="admin_guestbook.php"><i class="fas fa-envelope-open-text me-2"></i><span>Guest Book</span></a>
+            <a href="admin_guestbook.php"><i class="fas fa-envelope-open-text me-2"></i><span>Buku Tamu</span></a>
             </li>
         </ul>
     </div>
@@ -216,16 +243,16 @@ $products = $product->read();
         <div class="content-header mb-4">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h1 class="h3 mb-0 text-gray-800">Product Management</h1>
-                    <p class="text-muted small">Manage your products, software, and services</p>
+                    <h1 class="h3 mb-0 text-gray-800">Manajemen Produk</h1>
+                    <p class="text-muted small">Kelola produk, software, dan layanan Anda</p>
                 </div>
                 <?php if(!$show_form): ?>
                     <a href="admin_products.php?action=add" class="btn btn-primary">
-                        <i class="fas fa-plus me-1"></i> Add Product
+                        <i class="fas fa-plus me-1"></i> Tambah Produk
                     </a>
                 <?php else: ?>
                     <a href="admin_products.php" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-1"></i> Back to List
+                        <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar
                     </a>
                 <?php endif; ?>
             </div>
@@ -252,58 +279,58 @@ $products = $product->read();
                 <div class="card-header bg-<?php echo $edit_mode ? 'warning' : 'primary'; ?> text-white py-3">
                     <h5 class="card-title mb-0">
                         <i class="fas fa-<?php echo $edit_mode ? 'edit' : 'plus-circle'; ?> me-2"></i>
-                        <?php echo $edit_mode ? 'Edit Product' : 'Add New Product'; ?>
+                        <?php echo $edit_mode ? 'Edit Produk' : 'Tambah Produk Baru'; ?>
                     </h5>
                 </div>
                 <div class="card-body p-4">
-                    <form method="POST" action="admin_products.php" enctype="multipart/form-data">
+                    <form method="POST" action="admin_products.php" enctype="multipart/form-data" id="productForm">
                         <?php if($edit_mode): ?>
                             <input type="hidden" name="id" value="<?php echo $edit_data['id']; ?>">
                             <input type="hidden" name="existing_image" value="<?php echo htmlspecialchars($edit_data['image_url']); ?>">
                         <?php endif; ?>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Product Name *</label>
+                            <label class="form-label fw-bold">Nama Produk *</label>
                             <input type="text" class="form-control" name="name" required 
-                                   placeholder="e.g. Viat Map Application"
+                                   placeholder="Contoh: Aplikasi Viat Map"
                                    value="<?php echo $edit_mode ? htmlspecialchars($edit_data['name']) : ''; ?>">
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
+                            <label class="form-label">Deskripsi</label>
                             <textarea class="form-control" name="description" rows="4" 
-                                      placeholder="Detailed product description..."><?php echo $edit_mode ? htmlspecialchars($edit_data['description']) : ''; ?></textarea>
+                                      placeholder="Deskripsi detail produk..."><?php echo $edit_mode ? htmlspecialchars($edit_data['description']) : ''; ?></textarea>
                         </div>
 
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Price</label>
+                                <label class="form-label">Harga</label>
                                 <div class="input-group">
                                     <span class="input-group-text">Rp</span>
-                                    <input type="number" class="form-control" name="price" step="0.01" 
+                                    <input type="text" class="form-control price-input" name="price" 
                                            placeholder="0"
-                                           value="<?php echo $edit_mode ? htmlspecialchars($edit_data['price']) : ''; ?>">
+                                           value="<?php echo $edit_mode ? number_format($edit_data['price'], 0, ',', '.') : '0'; ?>">
                                 </div>
                                 <small class="form-text text-muted">Isi 0 jika gratis</small>
                             </div>
 
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Product Image</label>
-                                <input type="file" class="form-control" name="image_file" accept="image/*">
+                                <label class="form-label">Gambar Produk</label>
+                                <input type="file" class="form-control" name="image_file" accept="image/*" id="imageUpload">
                                 
                                 <?php if($edit_mode && !empty($edit_data['image_url'])): ?>
                                     <div class="mt-2 small text-muted">
-                                        Current Image:<br>
+                                        Gambar saat ini:<br>
                                         <img src="<?php echo htmlspecialchars($edit_data['image_url']); ?>" 
                                              alt="Preview" 
                                              style="height: 60px; object-fit: contain; border: 1px solid #ddd; padding: 2px;">
                                     </div>
                                 <?php endif; ?>
-                                <small class="form-text text-muted">Format: JPG, PNG, WEBP. Max: 2MB</small>
+                                <small class="form-text text-muted">Format: JPG, PNG, WEBP. Maks: 2MB</small>
                             </div>
 
                              <div class="col-md-4 mb-3">
-                                <label class="form-label fw-bold">Download Link (Optional)</label>
+                                <label class="form-label fw-bold">Link Download (Opsional)</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-download"></i></span>
                                     <input type="url" class="form-control" name="link_demo" 
@@ -317,10 +344,10 @@ $products = $product->read();
                             <button type="submit" name="<?php echo $edit_mode ? 'update_product' : 'add_product'; ?>" 
                                     class="btn btn-<?php echo $edit_mode ? 'warning' : 'primary'; ?> px-4">
                                 <i class="fas fa-save me-1"></i>
-                                <?php echo $edit_mode ? 'Update Product' : 'Save Product'; ?>
+                                <?php echo $edit_mode ? 'Perbarui Produk' : 'Simpan Produk'; ?>
                             </button>
                             <a href="admin_products.php" class="btn btn-secondary px-4">
-                                <i class="fas fa-times me-1"></i> Cancel
+                                <i class="fas fa-times me-1"></i> Batal
                             </a>
                         </div>
                     </form>
@@ -329,7 +356,13 @@ $products = $product->read();
         <?php else: ?>
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white py-3">
-                    <h5 class="card-title mb-0">Products List</h5>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Daftar Produk</h5>
+                        <div class="badge bg-primary px-3 py-2">
+                            <i class="fas fa-box me-1"></i>
+                            <?php echo $products ? $products->rowCount() : 0; ?> Produk
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -337,11 +370,11 @@ $products = $product->read();
                             <thead class="table-light">
                                 <tr>
                                     <th>#</th>
-                                    <th>Image</th>
-                                    <th>Product Name</th>
-                                    <th>Price</th>
+                                    <th>Gambar</th>
+                                    <th>Nama Produk</th>
+                                    <th>Harga</th>
                                     <th>Download</th>
-                                    <th class="text-end">Actions</th>
+                                    <th class="text-end">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -373,7 +406,7 @@ $products = $product->read();
                                             <?php if($row['price'] > 0): ?>
                                                 <strong class="text-success">Rp <?php echo number_format($row['price'], 0, ',', '.'); ?></strong>
                                             <?php else: ?>
-                                                <span class="badge bg-success">Free</span>
+                                                <span class="badge bg-success">Gratis</span>
                                             <?php endif; ?>
                                         </td>
                                         
@@ -396,8 +429,8 @@ $products = $product->read();
                                                 
                                                 <a href="admin_products.php?delete_id=<?php echo $row['id']; ?>" 
                                                    class="btn btn-sm btn-outline-danger"
-                                                   onclick="return confirm('Are you sure you want to delete this product? Image will be deleted too.')">
-                                                    <i class="fas fa-trash"></i> Delete
+                                                   onclick="return confirm('Yakin ingin menghapus produk ini? Gambar akan ikut terhapus.')">
+                                                    <i class="fas fa-trash"></i> Hapus
                                                 </a>
                                             </div>
                                         </td>
@@ -407,8 +440,8 @@ $products = $product->read();
                                     <tr>
                                         <td colspan="6" class="text-center py-5 text-muted">
                                             <i class="fas fa-box-open fa-3x mb-3 d-block"></i>
-                                            <h5>No Products Yet</h5>
-                                            <p>Click "Add Product" to add your first product.</p>
+                                            <h5>Belum Ada Produk</h5>
+                                            <p>Klik "Tambah Produk" untuk menambahkan produk pertama Anda.</p>
                                         </td>
                                     </tr>
                                 <?php endif; ?>
@@ -425,13 +458,58 @@ $products = $product->read();
     .sidebar-header {
         text-align: center;
         padding: 1rem;
-        border-bottom: 1px solid #dee2e6;
+        border-bottom: 1px solid #06305aff;
         margin-bottom: 1rem;
     }
     .admin-container {
-        background-color: #f8f9fa;
+        background-color: #06305aff;
         min-height: 100vh;
     }
+    .price-input {
+        font-family: monospace;
+    }
+    .table th {
+        background-color: #06305aff;
+        font-weight: 600;
+        padding: 12px 16px;
+    }
+    .table td {
+        padding: 12px 16px;
+        vertical-align: middle;
+    }
 </style>
+
+<script>
+// Format input harga saat user mengetik
+document.addEventListener('DOMContentLoaded', function() {
+    const priceInputs = document.querySelectorAll('.price-input');
+    
+    priceInputs.forEach(input => {
+        input.addEventListener('input', function(e) {
+            // Hapus semua karakter non-digit
+            let value = e.target.value.replace(/[^\d]/g, '');
+            
+            // Format dengan titik sebagai pemisah ribuan
+            if (value.length > 0) {
+                value = parseInt(value).toLocaleString('id-ID');
+            }
+            
+            e.target.value = value;
+        });
+        
+        // Validasi sebelum submit
+        const form = document.getElementById('productForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const priceInput = document.querySelector('.price-input');
+                if (priceInput) {
+                    // Hapus format titik sebelum submit
+                    priceInput.value = priceInput.value.replace(/\./g, '');
+                }
+            });
+        }
+    });
+});
+</script>
 
 <?php include_once 'includes/footer.php'; ?>

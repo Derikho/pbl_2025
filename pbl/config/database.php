@@ -1,10 +1,10 @@
 <?php
 class Database {
-    private $host = "localhost";
-    private $port = "5432";
-    private $db_name = "db_pbl";  
+    private $host = "127.0.0.1";
+    private $port = "5433";
+    private $db_name = "db_pbl_new";  
     private $username = "postgres";
-    private $password = "rafizf2005";
+    private $password = "deriko15";
     public $conn;
 
     public function getConnection() {

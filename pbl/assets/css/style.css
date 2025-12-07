@@ -862,3 +862,51 @@ body {
         white-space: nowrap;
     }
 }
+.about-bg {
+    position: relative;
+    padding: 100px 0;
+    overflow: hidden;
+    border-radius: 14px;
+}
+
+/* Layer gambar + blur */
+.about-bg {
+    position: relative;
+    overflow: hidden;
+    color: #003366; /* teks warna gelap seperti di screenshot */
+}
+
+.about-bg::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("img/backgroundabout.jpeg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(10px);
+    transform: scale(1.1);
+    opacity: 0.6; /* bisa disesuaikan */
+    z-index: 1;
+}
+
+.about-bg .container {
+    position: relative;
+    z-index: 2; /* memastikan teks di atas blur */
+}
+
+.about-heading {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.about-text {
+    font-size: 1.1rem;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+

@@ -49,14 +49,308 @@ if(file_exists('models/Activity.php')){
 
 ?>
 
-<section class="hero-section text-center">
-    <div class="container">
-        <h1 class="display-4 fw-bold">Learning Engineering Technology Laboratory</h1>
-        <p class="lead">Berdasarkan inovasi dan riset dalam rekayasa pembelajaran untuk membangun ekosistem pendidikan berkualitas.</p>
-        <a href="#about" class="btn btn-primary btn-lg mt-3">Pelajari Lebih Lanjut</a>
+<section class="hero-section text-center position-relative overflow-hidden">
+    <!-- Background Image dengan efek blur minimal -->
+    <div class="hero-background">
+        <div class="hero-bg-wrapper">
+            <?php
+            // Path lengkap ke background image
+            $bgFile = 'assets/img/backgroundabout.jpeg';
+            
+            if (file_exists($bgFile)) {
+                ?>
+                <img src="<?php echo $bgFile; ?>" 
+                     alt="LET Lab Background" 
+                     class="hero-bg-image"
+                     loading="eager"
+                     onerror="this.style.display='none'; document.querySelector('.gradient-fallback').style.display='block';">
+                <?php
+            }
+            ?>
+            
+            <!-- Fallback gradient jika gambar tidak ada -->
+            <div class="gradient-fallback" style="<?php echo file_exists($bgFile) ? 'display:none;' : 'display:block;'; ?>"></div>
+        </div>
+        <div class="hero-overlay"></div>
+    </div>
+    
+    <div class="container position-relative z-3">
+        <div class="hero-content animate__animated animate__fadeIn">
+            <h1 class="display-3 fw-bold text-white mb-4">
+                Learning Engineering<br>Technology Laboratory
+            </h1>
+            <p class="lead text-white-90 mb-5 fs-4 max-w-2xl mx-auto">
+                Berdasarkan inovasi dan riset dalam rekayasa pembelajaran untuk membangun ekosistem pendidikan berkualitas.
+            </p>
+            <div class="hero-buttons">
+                
+                <a href="#activities" class="btn btn-outline-light btn-lg px-5 py-3 mb-3">
+                    <i class="fas fa-flask me-2"></i>Lihat Aktivitas
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator position-absolute bottom-0 start-50 translate-middle-x mb-4 z-3">
+        <a href="#about" class="text-white text-decoration-none">
+            <div class="mouse mx-auto">
+                <div class="wheel"></div>
+            </div>
+            <div class="arrow-down mt-2">
+                <i class="fas fa-chevron-down fs-5"></i>
+            </div>
+        </a>
     </div>
 </section>
 
+<style>
+.hero-section {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 120px 0 100px;
+    overflow: hidden;
+}
+
+/* Background dengan efek blur MINIMAL */
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.hero-bg-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.hero-bg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    /* BLUR MINIMAL: dari 12px menjadi 3px */
+    filter: blur(3px) brightness(0.7);
+    transform: scale(1.05);
+    animation: slowDrift 40s ease-in-out infinite alternate;
+}
+
+@keyframes slowDrift {
+    0% {
+        transform: scale(1.05) translate(0, 0);
+        filter: blur(3px) brightness(0.7);
+    }
+    33% {
+        transform: scale(1.08) translate(-10px, 5px);
+        filter: blur(2px) brightness(0.75);
+    }
+    66% {
+        transform: scale(1.06) translate(5px, -3px);
+        filter: blur(4px) brightness(0.65);
+    }
+    100% {
+        transform: scale(1.05) translate(3px, 5px);
+        filter: blur(3px) brightness(0.7);
+    }
+}
+
+/* Overlay gradient untuk meningkatkan keterbacaan teks */
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        rgba(26, 41, 128, 0.7) 0%,
+        rgba(38, 208, 206, 0.6) 50%,
+        rgba(26, 41, 128, 0.7) 100%
+    );
+}
+
+/* Fallback gradient jika gambar tidak ada */
+.gradient-fallback {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+}
+
+/* Konten hero */
+.position-relative.z-3 {
+    position: relative;
+    z-index: 3;
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.text-white-90 {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.max-w-2xl {
+    max-width: 700px;
+}
+
+/* Tombol */
+.hero-buttons .btn {
+    border-radius: 50px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.hero-buttons .btn-primary {
+    background: linear-gradient(135deg, #1a2980, #26d0ce);
+    border: none;
+    box-shadow: 0 5px 15px rgba(26, 41, 128, 0.3);
+}
+
+.hero-buttons .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(26, 41, 128, 0.4);
+}
+
+.hero-buttons .btn-outline-light {
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.hero-buttons .btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Scroll Indicator */
+.scroll-indicator {
+    z-index: 3;
+}
+
+.mouse {
+    width: 30px;
+    height: 50px;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+    position: relative;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.wheel {
+    width: 6px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 3px;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: scrollWheel 2s infinite;
+}
+
+@keyframes scrollWheel {
+    0% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(25px);
+    }
+}
+
+.arrow-down {
+    animation: bounce 2s infinite;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-8px);
+    }
+    60% {
+        transform: translateY(-4px);
+    }
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+    .display-3 {
+        font-size: 3rem;
+    }
+    
+    .hero-section {
+        padding: 100px 0 80px;
+    }
+    
+    /* BLUR lebih kecil di tablet */
+    .hero-bg-image {
+        filter: blur(2px) brightness(0.7);
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: 90vh;
+        padding: 80px 0 60px;
+    }
+    
+    .display-3 {
+        font-size: 2.5rem;
+    }
+    
+    .lead.fs-4 {
+        font-size: 1.2rem !important;
+    }
+    
+    .hero-buttons .btn {
+        display: block;
+        width: 100%;
+        max-width: 300px;
+        margin: 10px auto !important;
+    }
+    
+    /* BLUR sangat kecil di mobile */
+    .hero-bg-image {
+        filter: blur(1px) brightness(0.65);
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section {
+        min-height: 85vh;
+        padding: 60px 0 50px;
+    }
+    
+    .display-3 {
+        font-size: 2rem;
+    }
+    
+    .lead.fs-4 {
+        font-size: 1.1rem !important;
+    }
+    
+    /* Hampir tanpa blur di mobile kecil */
+    .hero-bg-image {
+        filter: blur(0.5px) brightness(0.6);
+    }
+}
+</style>
 <section id="about" class="about-modern">
     <div class="container">
         <div class="row align-items-center">
@@ -92,7 +386,7 @@ if(file_exists('models/Activity.php')){
             <div class="col-lg-6">
                 <div class="about-image-wrapper">
                     <div class="img-decoration"></div>
-                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+                    <img src="assets/img/about2.jpg" 
                          class="img-fluid about-main-img" 
                          alt="Team Collaboration">
                 </div>
@@ -100,6 +394,7 @@ if(file_exists('models/Activity.php')){
         </div>
     </div>
 </section>
+
 
 <section class="py-5 bg-light">
     <div class="container">
@@ -284,7 +579,8 @@ if(file_exists('models/Activity.php')){
 <!-- Partners Section -->
 <section class="py-5 bg-light">
     <div class="container">
-        <h2 class="text-center mb-5">Partner Kami</h2>
+        <h2 class="text-center mb-5">Mitra Kami</h2>
+
         <div class="row justify-content-center">
             <?php 
             $count = 0;
@@ -292,23 +588,32 @@ if(file_exists('models/Activity.php')){
                 if($row['status'] == 'active' && $count < 6):
                     $count++;
             ?>
-            <div class="col-6 col-md-4 col-lg-2 mb-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body d-flex align-items-center justify-content-center p-3">
+            
+            <div class="col-6 col-md-4 col-lg-3 mb-4">
+                <div class="card h-100 border-0 shadow-sm text-center" style="padding: 18px; border-radius: 12px;">
+
+                    <div class="d-flex flex-column align-items-center justify-content-center">
+
+                        <!-- Logo diperbesar -->
                         <?php if(!empty($row['logo'])): ?>
                             <img src="<?php echo htmlspecialchars($row['logo']); ?>" 
                                  alt="<?php echo htmlspecialchars($row['name']); ?>" 
-                                 class="img-fluid" 
-                                 style="max-height: 60px; object-fit: contain;">
+                                 class="img-fluid mb-3"
+                                 style="max-height: 120px; object-fit: contain;">
                         <?php else: ?>
-                            <div class="text-center">
-                                <i class="fas fa-handshake fa-2x text-muted mb-2"></i>
-                                <small class="d-block"><?php echo htmlspecialchars($row['name']); ?></small>
-                            </div>
+                            <i class="fas fa-handshake fa-3x text-muted mb-2"></i>
                         <?php endif; ?>
+
+                        <!-- Nama partner tampil FULL (tidak dipotong) -->
+                        <strong style="font-size: 15px;">
+                            <?php echo htmlspecialchars($row['name']); ?>
+                        </strong>
+
                     </div>
+
                 </div>
             </div>
+            
             <?php 
                 endif;
             endwhile; 
@@ -316,6 +621,8 @@ if(file_exists('models/Activity.php')){
         </div>
     </div>
 </section>
+
+
 
 <section id="news" class="py-5">
     <div class="container">
@@ -506,7 +813,18 @@ $recent_activities = $activity_model->read();
                         </h5>
                         
                         <p class="card-text text-muted small">
-                            <?php echo htmlspecialchars(substr($act['description'], 0, 90)); ?>...
+                            <?php 
+                            // Periksa apakah ada deskripsi
+                            if (!empty(trim($act['description']))) {
+                                // Tampilkan maksimal 90 karakter tanpa titik-titik jika panjangnya <= 90
+                                $description = htmlspecialchars($act['description']);
+                                if (strlen($description) > 90) {
+                                    echo substr($description, 0, 90) . '...';
+                                } else {
+                                    echo $description;
+                                }
+                            } 
+                            ?>
                         </p>
                     </div>
                 </div>
@@ -645,23 +963,44 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
         
-        <div class="row">
+        <div class="row justify-content-center"> <!-- Tambah justify-content-center di sini -->
             <?php 
             $count = 0;
+            $product_count = 0; // Untuk menghitung total produk aktif
+            
+            // Hitung jumlah produk aktif terlebih dahulu
             if($products && $products->rowCount() > 0):
-                // Reset pointer data
-                $products->execute();
-                while($prod = $products->fetch(PDO::FETCH_ASSOC)): 
-                    // Gunakan ?? untuk mencegah error jika kolom tidak ada
+                $temp_products = $products->fetchAll(PDO::FETCH_ASSOC);
+                foreach($temp_products as $temp_prod):
+                    if(($temp_prod['status'] ?? 'active') == 'active'):
+                        $product_count++;
+                    endif;
+                endforeach;
+                
+                // Reset pointer
+                $products = null; // Reset variabel untuk fetch ulang
+                // Asumsi $products diambil dari database, perlu query ulang atau gunakan $temp_products
+                // Untuk contoh ini, saya akan gunakan $temp_products
+                
+                $displayed_count = 0;
+                foreach($temp_products as $prod):
                     $status = $prod['status'] ?? 'active';
                     $category = $prod['category'] ?? 'App';
                     
-                    if($status == 'active' && $count < 4):
-                        $count++;
+                    if($status == 'active' && $displayed_count < 4):
+                        $displayed_count++;
                         $prod_id = $prod['id'];
+                        
+                        // Tentukan class col berdasarkan jumlah produk
+                        // Jika produk kurang dari 4, gunakan col yang lebih kecil agar center
+                        if($product_count < 4) {
+                            $col_class = 'col-md-6 col-lg-4'; // Lebih kecil untuk produk sedikit
+                        } else {
+                            $col_class = 'col-md-6 col-lg-3'; // Standar untuk 4 produk
+                        }
             ?>
-            <div class="col-md-6 col-lg-3 mb-4">
-                <div class="card h-100 shadow-sm border-0 product-card">
+            <div class="<?php echo $col_class; ?> mb-4 d-flex justify-content-center"> <!-- Tambah d-flex justify-content-center -->
+                <div class="card h-100 shadow-sm border-0 product-card" style="width: 100%; max-width: 280px;"> <!-- Tambah max-width -->
                     <div class="position-relative overflow-hidden">
                         <?php if(!empty($prod['image_url'])): ?>
                             <img src="<?php echo htmlspecialchars($prod['image_url']); ?>" 
@@ -678,12 +1017,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
 
                     <div class="card-body d-flex flex-column">
-                        <h5 class="card-title fw-bold text-dark mb-2">
+                        <h5 class="card-title fw-bold text-dark mb-2 text-center"> <!-- Tambah text-center -->
                             <?php echo htmlspecialchars($prod['name']); ?>
                         </h5>
                         
-                        <p class="card-text text-muted small mb-3 flex-grow-1">
-                            <?php echo htmlspecialchars(substr($prod['description'] ?? '', 0, 80)); ?>...
+                        <p class="card-text text-muted small mb-3 flex-grow-1 text-center"> <!-- Tambah text-center -->
+                            <?php 
+                            // Periksa apakah ada deskripsi
+                            $description = $prod['description'] ?? '';
+                            
+                            if (!empty(trim($description))) {
+                                $description = htmlspecialchars($description);
+                                if (strlen($description) > 80) {
+                                    echo substr($description, 0, 80) . '...';
+                                } else {
+                                    echo $description;
+                                }
+                            } 
+                            ?>
                         </p>
                         
                         <div id="prod-desc-<?php echo $prod_id; ?>" class="d-none"><?php echo nl2br(htmlspecialchars($prod['description'] ?? '')); ?></div>
@@ -712,10 +1063,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
             </div>
-            <?php endif; endwhile; else: ?>
+            <?php 
+                    endif;
+                endforeach; 
+            else: 
+            ?>
                 <div class="col-12 text-center py-5"><p class="text-muted">Belum ada produk yang ditampilkan.</p></div>
             <?php endif; ?>
         </div>
+        
+        <!-- Tombol lihat semua jika ada lebih dari 4 produk -->
+        <?php if($product_count > 4): ?>
+        <div class="text-center mt-4">
+            <a href="products.php" class="btn btn-outline-primary px-4 rounded-pill">
+                Lihat Semua Produk <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+        <?php endif; ?>
     </div>
 </section>
 
@@ -794,6 +1158,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </style>
 
 <!-- Gallery Section -->
+<!-- Gallery Section -->
 <section id="gallery" class="py-5 bg-light">
     <div class="container">
         <div class="row mb-5">
@@ -805,79 +1170,254 @@ document.addEventListener('DOMContentLoaded', function() {
         
         <div class="row">
             <?php 
+            // Pastikan model Gallery tersedia
             if(file_exists('models/Gallery.php')) {
                 include_once 'models/Gallery.php';
-                $gallery_model = new Gallery($db);
-                $gallery_items = $gallery_model->read();
                 
-                $count = 0;
-                if($gallery_items->rowCount() > 0):
-                    while($item = $gallery_items->fetch(PDO::FETCH_ASSOC)): 
-                        if(($item['status'] ?? 'active') == 'active' && $count < 3):
-                            $count++;
+                // Inisialisasi koneksi database jika belum ada
+                if(!isset($db) || !$db) {
+                    include_once 'config/database.php';
+                    $database = new Database();
+                    $db = $database->getConnection();
+                }
+                
+                $gallery_model = new Gallery($db);
+                
+                // OPTIMASI: Gunakan method khusus untuk landing page
+                try {
+                    // Method 1: Gunakan readActive() jika ada
+                    if(method_exists($gallery_model, 'readActive')) {
+                        $stmt = $gallery_model->readActive(3);
+                        $active_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    } 
+                    // Method 2: Fallback ke cara manual
+                    else {
+                        $stmt = $gallery_model->read();
+                        $all_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                        
+                        // Filter hanya yang status = 'active'
+                        $active_items = array_filter($all_items, function($item) {
+                            return ($item['status'] ?? 'active') == 'active';
+                        });
+                        
+                        // Urutkan berdasarkan tanggal terbaru dan ambil 3 pertama
+                        usort($active_items, function($a, $b) {
+                            return strtotime($b['created_at'] ?? '') - strtotime($a['created_at'] ?? '');
+                        });
+                        
+                        $active_items = array_slice($active_items, 0, 3);
+                    }
+                    
+                    // Debug info (bisa dihapus setelah testing)
+                    // echo "<!-- DEBUG: Found " . count($active_items) . " active gallery items -->";
+                    
+                    if(count($active_items) > 0):
+                        foreach($active_items as $item):
+                            // Pastikan URL gambar valid
+                            $image_url = $item['image_url'] ?? '';
+                            $image_error = false;
+                            
+                            // Validasi URL gambar
+                            if(!empty($image_url)) {
+                                $is_url = filter_var($image_url, FILTER_VALIDATE_URL);
+                                if(!$is_url) {
+                                    // Cek jika path lokal
+                                    $local_path = $_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($image_url, '/');
+                                    if(!file_exists($local_path)) {
+                                        $image_error = true;
+                                        $image_url = 'https://via.placeholder.com/400x250/6c757d/ffffff?text=Gambar+Tidak+Ditemukan';
+                                    }
+                                }
+                            } else {
+                                $image_error = true;
+                                $image_url = 'https://via.placeholder.com/400x250/dee2e6/6c757d?text=Tidak+Ada+Gambar';
+                            }
+                            
+                            // Mapping kategori (Inggris -> Indonesia)
+                            $kategori = strtolower($item['category'] ?? 'general');
+                            $kategori_indonesia = [
+                                'general' => 'Umum',
+                                'events' => 'Acara',
+                                'event' => 'Acara',
+                                'activity' => 'Aktivitas',
+                                'research' => 'Penelitian',
+                                'facilities' => 'Fasilitas',
+                                'facility' => 'Fasilitas',
+                                'meeting' => 'Rapat',
+                                'workshop' => 'Workshop',
+                                'seminar' => 'Seminar',
+                                'products' => 'Produk',
+                                'product' => 'Produk',
+                                'projects' => 'Produk',
+                                'team' => 'Tim',
+                                'documentation' => 'Dokumentasi'
+                            ];
+                            $kategori_display = $kategori_indonesia[$kategori] ?? ucfirst($kategori);
             ?>
             <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm border-0 gallery-card">
-                    <div class="overflow-hidden position-relative">
-                        <?php if(!empty($item['image_url'])): ?>
-                            <img src="<?php echo htmlspecialchars($item['image_url']); ?>" 
-                                 class="card-img-top gallery-img" 
-                                 alt="<?php echo htmlspecialchars($item['title']); ?>"
-                                 style="height: 250px; object-fit: cover; transition: transform 0.5s;">
-                        <?php else: ?>
-                            <div class="bg-secondary d-flex align-items-center justify-content-center text-white" style="height: 250px;">
-                                <i class="fas fa-image fa-3x"></i>
-                            </div>
-                        <?php endif; ?>
+                <div class="card h-100 shadow-sm border-0 gallery-card" 
+                     onclick="window.location.href='gallery.php';" 
+                     style="cursor: pointer;">
+                    <div class="overflow-hidden position-relative" style="height: 250px;">
+                        <img src="<?php echo htmlspecialchars($image_url); ?>" 
+                             class="card-img-top gallery-img h-100 w-100" 
+                             alt="<?php echo htmlspecialchars($item['title']); ?>"
+                             style="object-fit: cover;"
+                             loading="lazy"
+                             onerror="this.onerror=null; this.src='https://via.placeholder.com/400x250/dee2e6/6c757d?text=Gambar+Error';">
+                        
+                        <div class="gallery-overlay">
+                            <i class="fas fa-external-link-alt text-white fa-2x"></i>
+                        </div>
                         
                         <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-3 shadow-sm">
-                            <?php echo ucfirst($item['category'] ?? 'General'); ?>
+                            <?php echo $kategori_display; ?>
                         </span>
+                        
+                        <?php if($image_error): ?>
+                        <div class="position-absolute bottom-0 start-0 w-100 bg-danger bg-opacity-75 text-white p-1 text-center">
+                            <small><i class="fas fa-exclamation-triangle me-1"></i> Gambar bermasalah</small>
+                        </div>
+                        <?php endif; ?>
                     </div>
                     
                     <div class="card-body">
-                        <h5 class="card-title fw-bold mb-2"><?php echo htmlspecialchars($item['title']); ?></h5>
+                        <h5 class="card-title fw-bold mb-2 text-dark"><?php echo htmlspecialchars($item['title']); ?></h5>
                         <p class="card-text text-muted small">
-                            <?php echo htmlspecialchars(substr($item['description'] ?? '', 0, 80)); ?>...
+                            <?php 
+                            $description = $item['description'] ?? '';
+                            if (!empty(trim($description))) {
+                                $description = htmlspecialchars($description);
+                                if (strlen($description) > 80) {
+                                    echo substr($description, 0, 80) . '...';
+                                } else {
+                                    echo $description;
+                                }
+                            } 
+                            ?>
                         </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="far fa-calendar-alt me-1"></i>
+                                <?php 
+                                if(isset($item['created_at']) && !empty($item['created_at'])) {
+                                    echo date('d M Y', strtotime($item['created_at']));
+                                } else {
+                                    echo 'Tanggal tidak tersedia';
+                                }
+                                ?>
+                            </small>
+                            <small class="text-primary">
+                                Lihat detail <i class="fas fa-arrow-right ms-1"></i>
+                            </small>
+                        </div>
                     </div>
                 </div>
             </div>
             <?php 
-                        endif;
-                    endwhile; 
-                else:
+                        endforeach;
+                    else:
             ?>
                 <div class="col-12 text-center py-5">
-                    <p class="text-muted">Belum ada galeri yang diunggah.</p>
+                    <div class="text-muted">
+                        <i class="fas fa-images fa-3x mb-3 opacity-50"></i>
+                        <h5>Belum ada galeri aktif</h5>
+                        <p>Silakan tambah data galeri melalui panel admin.</p>
+                        
+                        <?php if(isset($_SESSION['loggedin']) && $_SESSION['role'] === 'admin'): ?>
+                        <a href="admin_gallery.php" class="btn btn-sm btn-primary mt-2">
+                            <i class="fas fa-plus me-1"></i> Tambah Galeri
+                        </a>
+                        <?php endif; ?>
+                    </div>
                 </div>
             <?php 
-                endif;
+                    endif;
+                    
+                } catch (Exception $e) {
+                    echo "<!-- Error loading gallery: " . $e->getMessage() . " -->";
+                ?>
+                <div class="col-12 text-center py-5">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Galeri tidak dapat dimuat. Silakan coba lagi nanti.
+                    </div>
+                </div>
+                <?php
+                }
+                
+            } else {
+                echo "<!-- Gallery model not found at: models/Gallery.php -->";
             }
             ?>
         </div>
 
+        <?php if(isset($active_items) && count($active_items) > 0): ?>
         <div class="text-center mt-4">
             <a href="gallery.php" class="btn btn-outline-primary px-4 rounded-pill">
-                Lihat Semua Galeri <i class="fas fa-arrow-right ms-2"></i>
+                <i class="fas fa-images me-2"></i> Lihat Semua Galeri
             </a>
-        </div>
+            
+            
+        <?php endif; ?>
     </div>
 </section>
 
 <style>
-.gallery-card:hover .gallery-img {
-    transform: scale(1.1); 
-}
 .gallery-card {
-    overflow: hidden; 
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.1);
 }
+
 .gallery-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+    border-color: #0d6efd;
+}
+
+.gallery-img {
+    transition: transform 0.5s ease;
+}
+
+.gallery-card:hover .gallery-img {
+    transform: scale(1.05);
+}
+
+.gallery-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(13, 110, 253, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.gallery-card:hover .gallery-overlay {
+    opacity: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .gallery-card {
+        margin-bottom: 1.5rem;
+    }
 }
 </style>
+
+<script>
+// Optional: Add click tracking
+document.addEventListener('DOMContentLoaded', function() {
+    const galleryCards = document.querySelectorAll('.gallery-card');
+    galleryCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Optional: Track click event
+            console.log('Gallery card clicked, redirecting to gallery.php');
+        });
+    });
+});
+</script>
 
 
 <!-- Contact Section -->
@@ -942,7 +1482,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="col-lg-7 mb-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body p-5">
-                        <h2 class="fw-bold mb-4 text-center">Get in Touch</h2>
+                        <h2 class="fw-bold mb-4 text-center">Hubungi</h2>
                         <p class="text-center text-muted mb-4">Salah satu tim kami akan segera menghubungi Anda.</p>
                         
                         <form action="process_guestbook.php" method="POST">
