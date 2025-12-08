@@ -732,7 +732,8 @@ if(file_exists('models/Activity.php')){
         </div>
 
         <div class="text-center mt-4">
-            <a href="news_detail.php" class="btn btn-outline-primary px-4 rounded-pill">Lihat Semua Berita</a>
+            <a href="news_detail.php" class="btn btn-outline-primary px-4 rounded-pill">
+                Lihat Semua Berita <i class="fas fa-arrow-right ms-2"></i></a>
         </div>
     </div>
 </section>
