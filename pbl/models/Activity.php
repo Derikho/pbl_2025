@@ -3,6 +3,7 @@ class Activity {
     private $conn;
     private $table_name = "activities"; 
     
+    // Properti tabel
     public $activity_id;
     public $activity_type;
     public $title;
@@ -11,18 +12,20 @@ class Activity {
     public $activity_date;
     public $location;
     public $status;
-    public $link; // PROPERTI BARU
+    public $link; // Link kegiatan / tautan referensi
     public $created_at;
     public $updated_at;
 
-    public $username;
+    public $username; // Username pembuat kegiatan
 
     public function __construct($db) {
         $this->conn = $db;
     }
 
+    // --------------------------
+    // AMBIL SEMUA DATA KEGIATAN
+    // --------------------------
     public function read() {
-        // Tambahkan kolom 'link' di query SELECT
         $query = "SELECT a.*, u.username 
                   FROM " . $this->table_name . " a
                   LEFT JOIN users u ON a.user_id = u.user_id
@@ -33,25 +36,27 @@ class Activity {
         return $stmt;
     }
 
+    // --------------------------
+    // TAMBAH KEGIATAN BARU
+    // --------------------------
     public function create() {
-        // Tambahkan kolom 'link' di query INSERT
         $query = "INSERT INTO " . $this->table_name . " 
                   (activity_type, title, description, user_id, activity_date, location, status, link) 
                   VALUES (:type, :title, :desc, :uid, :date, :loc, :status, :link)";
 
         $stmt = $this->conn->prepare($query);
 
-        // Sanitize
-        $this->activity_type = htmlspecialchars(strip_tags($this->activity_type));
-        $this->title = htmlspecialchars(strip_tags($this->title));
-        $this->description = htmlspecialchars(strip_tags($this->description));
-        $this->user_id = htmlspecialchars(strip_tags($this->user_id));
-        $this->activity_date = htmlspecialchars(strip_tags($this->activity_date));
-        $this->location = htmlspecialchars(strip_tags($this->location));
-        $this->status = htmlspecialchars(strip_tags($this->status));
-        $this->link = htmlspecialchars(strip_tags($this->link));
+        // Sanitasi input
+        $this->activity_type  = htmlspecialchars(strip_tags($this->activity_type));
+        $this->title          = htmlspecialchars(strip_tags($this->title));
+        $this->description    = htmlspecialchars(strip_tags($this->description));
+        $this->user_id        = htmlspecialchars(strip_tags($this->user_id));
+        $this->activity_date  = htmlspecialchars(strip_tags($this->activity_date));
+        $this->location       = htmlspecialchars(strip_tags($this->location));
+        $this->status         = htmlspecialchars(strip_tags($this->status));
+        $this->link           = htmlspecialchars(strip_tags($this->link));
 
-        // Bind
+        // Bind parameter
         $stmt->bindParam(':type', $this->activity_type);
         $stmt->bindParam(':title', $this->title);
         $stmt->bindParam(':desc', $this->description);
@@ -61,14 +66,13 @@ class Activity {
         $stmt->bindParam(':status', $this->status);
         $stmt->bindParam(':link', $this->link);
 
-        if($stmt->execute()) {
-            return true;
-        }
-        return false;
+        return $stmt->execute();
     }
 
+    // --------------------------
+    // UPDATE DATA KEGIATAN
+    // --------------------------
     public function update() {
-        // Tambahkan kolom 'link' di query UPDATE
         $query = "UPDATE " . $this->table_name . " 
                   SET activity_type = :type,
                       title = :title, 
@@ -82,7 +86,7 @@ class Activity {
 
         $stmt = $this->conn->prepare($query);
 
-        // Bind
+        // Bind data yang akan diubah
         $stmt->bindParam(':type', $this->activity_type);
         $stmt->bindParam(':title', $this->title);
         $stmt->bindParam(':desc', $this->description);
@@ -92,23 +96,22 @@ class Activity {
         $stmt->bindParam(':link', $this->link);
         $stmt->bindParam(':id', $this->activity_id);
 
-        if($stmt->execute()) {
-            return true;
-        }
-        return false;
+        return $stmt->execute();
     }
 
+    // --------------------------
+    // HAPUS KEGIATAN
+    // --------------------------
     public function delete() {
         $query = "DELETE FROM " . $this->table_name . " WHERE activity_id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':id', $this->activity_id);
-        
-        if($stmt->execute()) {
-            return true;
-        }
-        return false;
+        return $stmt->execute();
     }
 
+    // --------------------------
+    // TOTAL KEGIATAN
+    // --------------------------
     public function getTotalActivities() {
         $query = "SELECT COUNT(*) as total FROM " . $this->table_name;
         $stmt = $this->conn->prepare($query);
@@ -117,6 +120,9 @@ class Activity {
         return $row['total'];
     }
 
+    // --------------------------
+    // HITUNG KEGIATAN BERDASARKAN STATUS
+    // --------------------------
     public function getCountByStatus($status) {
         $query = "SELECT COUNT(*) as total FROM " . $this->table_name . " WHERE status = :status";
         $stmt = $this->conn->prepare($query);

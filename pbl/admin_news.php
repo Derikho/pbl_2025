@@ -295,12 +295,12 @@ $news_articles = $news->read();
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Kategori</label>
                                 <select class="form-select" name="category">
-                                    <option value="General" <?php echo ($edit_mode && $edit_data['category'] == 'General') ? 'selected' : ''; ?>>Umum</option>
-                                    <option value="Research" <?php echo ($edit_mode && $edit_data['category'] == 'Research') ? 'selected' : ''; ?>>Penelitian</option>
-                                    <option value="Events" <?php echo ($edit_mode && $edit_data['category'] == 'Events') ? 'selected' : ''; ?>>Acara</option>
-                                    <option value="Achievement" <?php echo ($edit_mode && $edit_data['category'] == 'Achievement') ? 'selected' : ''; ?>>Prestasi</option>
-                                    <option value="Technology" <?php echo ($edit_mode && $edit_data['category'] == 'Technology') ? 'selected' : ''; ?>>Teknologi</option>
-                                    <option value="Education" <?php echo ($edit_mode && $edit_data['category'] == 'Education') ? 'selected' : ''; ?>>Pendidikan</option>
+                                    <option value="Umum" <?php echo ($edit_mode && $edit_data['category'] == 'Umum') ? 'selected' : ''; ?>>Umum</option>
+                                    <option value="Penelitian" <?php echo ($edit_mode && $edit_data['category'] == 'Penelitian') ? 'selected' : ''; ?>>Penelitian</option>
+                                    <option value="Acara" <?php echo ($edit_mode && $edit_data['category'] == 'Acara') ? 'selected' : ''; ?>>Acara</option>
+                                    <option value="Penghargaan" <?php echo ($edit_mode && $edit_data['category'] == 'Prestasi') ? 'selected' : ''; ?>>Prestasi</option>
+                                    <option value="Teknologi" <?php echo ($edit_mode && $edit_data['category'] == 'Teknologi') ? 'selected' : ''; ?>>Teknologi</option>
+                                    <option value="Edukasi" <?php echo ($edit_mode && $edit_data['category'] == 'Pendidikan') ? 'selected' : ''; ?>>Pendidikan</option>
                                 </select>
                             </div>
 
@@ -441,12 +441,12 @@ $news_articles = $news->read();
                                             <span class="badge bg-info text-dark">
                                                 <?php 
                                                 $kategori = [
-                                                    'General' => 'Umum',
-                                                    'Research' => 'Penelitian',
-                                                    'Events' => 'Acara',
-                                                    'Achievement' => 'Prestasi',
-                                                    'Technology' => 'Teknologi',
-                                                    'Education' => 'Pendidikan'
+                                                    'Umum' => 'Umum',
+                                                    'Penelitian' => 'Penelitian',
+                                                    'Acara' => 'Acara',
+                                                    'Prestasi' => 'Prestasi',
+                                                    'Teknologi' => 'Teknologi',
+                                                    'Pendidikan' => 'Pendidikan'
                                                 ];
                                                 echo $kategori[$article['category']] ?? $article['category'];
                                                 ?>

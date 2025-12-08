@@ -135,7 +135,7 @@ $all_news = $news->read();
 
         <div class="text-center mt-5">
             <a href="index.php#news" class="btn btn-outline-primary px-4 rounded-pill">
-                ← Kembali ke Home
+                ← Kembali ke Beranda
             </a>
         </div>
 

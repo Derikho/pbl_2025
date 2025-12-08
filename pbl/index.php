@@ -570,7 +570,7 @@ if(file_exists('models/Activity.php')){
         
         <div class="text-center mt-4">
             <a href="daftar_team.php" class="btn btn-outline-primary px-4 rounded-pill  ">
-                <i class="fas fa-users me-2"></i>Lihat Semua Tim
+                <i class="fas fa-users me-2"></i>Lihat Semua Tim <i class="fas fa-arrow-right ms-2"></i>
             </a>
         </div>
     </div>
@@ -590,11 +590,11 @@ if(file_exists('models/Activity.php')){
             ?>
             
             <div class="col-6 col-md-4 col-lg-3 mb-4">
-                <div class="card h-100 border-0 shadow-sm text-center" style="padding: 18px; border-radius: 12px;">
+                <div class="card h-100 border-0 shadow-sm text-center p-3" style="border-radius: 12px;">
 
                     <div class="d-flex flex-column align-items-center justify-content-center">
 
-                        <!-- Logo diperbesar -->
+                        <!-- LOGO PARTNER -->
                         <?php if(!empty($row['logo'])): ?>
                             <img src="<?php echo htmlspecialchars($row['logo']); ?>" 
                                  alt="<?php echo htmlspecialchars($row['name']); ?>" 
@@ -604,10 +604,21 @@ if(file_exists('models/Activity.php')){
                             <i class="fas fa-handshake fa-3x text-muted mb-2"></i>
                         <?php endif; ?>
 
-                        <!-- Nama partner tampil FULL (tidak dipotong) -->
-                        <strong style="font-size: 15px;">
+                        <!-- NAMA PARTNER -->
+                        <strong class="mb-2" style="font-size: 15px;">
                             <?php echo htmlspecialchars($row['name']); ?>
                         </strong>
+
+                        <!-- DESKRIPSI FULL -->
+                        <p class="text-muted" style="font-size: 13px;">
+                            <?php 
+                                if (!empty($row['description'])) {
+                                    echo nl2br(htmlspecialchars($row['description'])); // tampil full + support enter
+                                } else {
+                                    echo "Tidak ada deskripsi.";
+                                }
+                            ?>
+                        </p>
 
                     </div>
 
@@ -621,6 +632,8 @@ if(file_exists('models/Activity.php')){
         </div>
     </div>
 </section>
+
+
 
 
 
@@ -732,7 +745,7 @@ if(file_exists('models/Activity.php')){
         </div>
 
         <div class="text-center mt-4">
-            <a href="news_detail.php" class="btn btn-outline-primary px-4 rounded-pill">Lihat Semua Berita</a>
+            <a href="news_detail.php" class="btn btn-outline-primary px-4 rounded-pill">Lihat Semua Berita <i class="fas fa-arrow-right ms-2"></i></a>
         </div>
     </div>
 </section>
@@ -748,8 +761,8 @@ $recent_activities = $activity_model->read();
     <div class="container">
         <div class="row mb-5">
             <div class="col-lg-8 mx-auto text-center">
-                <h2 class="fw-bold">Aktivitas & Kegiatan Kami</h2>
-                <p class="text-muted">Dokumentasi kegiatan, seminar, dan riset terbaru dari LET Lab.</p>
+                <h2 class="fw-bold">Aktivitas Terbaru</h2>
+                <p class="text-muted">Dokumentasi kegiatan, seminar, proyek, dan aktivitas terbaru di LET Lab.</p>
             </div>
         </div>
 
@@ -770,7 +783,6 @@ $recent_activities = $activity_model->read();
                         } elseif (!empty($act['image_url'])) {
                             $thumb = htmlspecialchars($act['image_url']);
                         }
-
             ?>
             <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm border-0 activity-card">
@@ -779,7 +791,7 @@ $recent_activities = $activity_model->read();
                             <img src="<?php echo $thumb; ?>" 
                                  class="card-img-top" 
                                  style="height: 220px; object-fit: cover;" 
-                                 alt="Activity Thumbnail">
+                                 alt="Thumbnail Kegiatan">
                         <?php else: ?>
                             <div class="bg-dark d-flex align-items-center justify-content-center text-white" style="height: 220px;">
                                 <i class="fas fa-video fa-3x"></i>
@@ -798,7 +810,7 @@ $recent_activities = $activity_model->read();
                         <?php endif; ?>
                         
                         <span class="badge bg-primary position-absolute top-0 end-0 m-3">
-                            <?php echo htmlspecialchars($act['activity_type'] ?? 'Activity'); ?>
+                            <?php echo htmlspecialchars($act['activity_type'] ?? 'Kegiatan'); ?>
                         </span>
                     </div>
 
@@ -814,16 +826,14 @@ $recent_activities = $activity_model->read();
                         
                         <p class="card-text text-muted small">
                             <?php 
-                            // Periksa apakah ada deskripsi
                             if (!empty(trim($act['description']))) {
-                                // Tampilkan maksimal 90 karakter tanpa titik-titik jika panjangnya <= 90
                                 $description = htmlspecialchars($act['description']);
                                 if (strlen($description) > 90) {
                                     echo substr($description, 0, 90) . '...';
                                 } else {
                                     echo $description;
                                 }
-                            } 
+                            }
                             ?>
                         </p>
                     </div>
@@ -847,6 +857,7 @@ $recent_activities = $activity_model->read();
         </div>
     </div>
 </section>
+
 
 <div class="modal fade" id="videoModalHome" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -1355,7 +1366,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <?php if(isset($active_items) && count($active_items) > 0): ?>
         <div class="text-center mt-4">
             <a href="gallery.php" class="btn btn-outline-primary px-4 rounded-pill">
-                <i class="fas fa-images me-2"></i> Lihat Semua Galeri
+                <i class="fas fa-images me-2"></i> Lihat Semua Galeri <i class="fas fa-arrow-right ms-2"></i>
             </a>
             
             

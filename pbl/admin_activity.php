@@ -29,9 +29,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $activity->activity_type = $_POST['activity_type'];
         $activity->description = $_POST['description'];
         $activity->activity_date = $_POST['activity_date'];
-        $activity->location = $_POST['location']; // Location murni untuk lokasi
+        $activity->location = $_POST['location'];
         $activity->status = $_POST['status'];
-        $activity->link = $_POST['link']; // Link YouTube masuk ke kolom link
+        $activity->link = $_POST['link'];
         $activity->user_id = $current_user_id;
         
         if($activity->create()){
@@ -84,13 +84,10 @@ if(isset($_GET['action'])){
     }
 }
 
-$total_activities = $activity->getTotalActivities();
-$ongoing_count = $activity->getCountByStatus('ongoing');
-$completed_count = $activity->getCountByStatus('completed');
-$planned_count = $activity->getCountByStatus('planned');
 $activities = $activity->read();
 ?>
 
+<!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-admin sticky-top">
     <div class="container-fluid">
         <a class="navbar-brand text-white" href="admin_dashboard.php">
@@ -104,13 +101,15 @@ $activities = $activity->read();
                 <i class="fas fa-user-shield me-1"></i>
                 <span class="admin-name"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
             </div>
-            <a href="#" class="btn btn-sm btn-outline-light" class="text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
+            <a href="#" class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#logoutModal">
                 <i class="fas fa-sign-out-alt"></i> Keluar
             </a>
         </div>
     </div>
 </nav>
+
 <div class="admin-container">
+    <!-- SIDEBAR -->
     <div class="admin-sidebar">
         <div class="sidebar-header"><h5 class="mb-0">Navigasi</h5></div>
         <ul class="sidebar-menu">
@@ -123,52 +122,66 @@ $activities = $activity->read();
             <li class="menu-item"><a href="admin_gallery.php"><i class="fas fa-images me-2"></i><span>Galeri</span></a></li>
             <li class="menu-item active"><a href="admin_activity.php"><i class="fas fa-chart-line me-2"></i><span>Aktivitas</span></a></li>
             <li class="menu-item"><a href="admin_booking.php"><i class="fas fa-calendar-check me-2"></i><span>Peminjaman</span></a></li>
-            <li class="menu-item"><a href="admin_absent.php"><i class="fas fa-clipboard-list me-2"></i><span>Kehadiran</span></a></li>
+            <li class="menu-item"><a href="admin_absent.php"><i class="fas fa-clipboard-list me-2"></i><span>Absensi</span></a></li>
             <li class="menu-item"><a href="admin_guestbook.php"><i class="fas fa-envelope-open-text me-2"></i><span>Buku Tamu</span></a></li>
         </ul>
     </div>
 
+    <!-- CONTENT -->
     <div class="admin-content">
         <div class="content-header mb-4">
             <div class="d-flex justify-content-between align-items-center">
-                <div><h1 class="h3 mb-0 text-gray-800">Manajemen Aktivitas</h1></div>
+                <h1 class="h3 mb-0 text-gray-800">Manajemen Aktivitas</h1>
+
                 <?php if(!$show_form): ?>
-                    <a href="admin_activity.php?action=add" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Tambah Aktivitas</a>
+                    <a href="admin_activity.php?action=add" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i> Tambah Aktivitas
+                    </a>
                 <?php else: ?>
-                    <a href="admin_activity.php" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar</a>
+                    <a href="admin_activity.php" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar
+                    </a>
                 <?php endif; ?>
             </div>
         </div>
 
         <?php if($show_form): ?>
+            <!-- FORM TAMBAH / EDIT -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-<?php echo $edit_mode ? 'warning' : 'primary'; ?> text-white py-3">
-                    <h5 class="card-title mb-0"><?php echo $edit_mode ? 'Edit Aktivitas' : 'Tambah Aktivitas Baru'; ?></h5>
+                    <h5 class="card-title mb-0">
+                        <?php echo $edit_mode ? 'Edit Aktivitas' : 'Tambah Aktivitas Baru'; ?>
+                    </h5>
                 </div>
                 <div class="card-body p-4">
                     <form method="POST" action="admin_activity.php">
-                        <?php if($edit_mode): ?> <input type="hidden" name="id" value="<?php echo $edit_data['activity_id']; ?>"> <?php endif; ?>
+                        <?php if($edit_mode): ?>
+                            <input type="hidden" name="id" value="<?php echo $edit_data['activity_id']; ?>">
+                        <?php endif; ?>
+
                         <div class="row">
                             <div class="col-md-8 mb-3">
                                 <label class="form-label fw-bold">Judul Aktivitas *</label>
-                                <input type="text" class="form-control" name="title" required value="<?php echo $edit_mode ? htmlspecialchars($edit_data['title']) : ''; ?>">
+                                <input type="text" class="form-control" name="title" required
+                                       value="<?php echo $edit_mode ? htmlspecialchars($edit_data['title']) : ''; ?>">
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Tanggal</label>
-                                <input type="date" class="form-control" name="activity_date" required value="<?php echo $edit_mode ? $edit_data['activity_date'] : date('Y-m-d'); ?>">
+                                <input type="date" class="form-control" name="activity_date" required
+                                       value="<?php echo $edit_mode ? $edit_data['activity_date'] : date('Y-m-d'); ?>">
                             </div>
                         </div>
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Jenis</label>
+                                <label class="form-label">Jenis Aktivitas</label>
                                 <select name="activity_type" class="form-select">
                                     <option value="Research" <?php echo ($edit_mode && $edit_data['activity_type']=='Research')?'selected':''; ?>>Penelitian</option>
                                     <option value="Conference" <?php echo ($edit_mode && $edit_data['activity_type']=='Conference')?'selected':''; ?>>Konferensi</option>
-                                    <option value="Seminar" <?php echo ($edit_mode && $edit_data['activity_type']=='Seminar')?'selected':''; ?>>Seminar</option>
-                                    <option value="Workshop" <?php echo ($edit_mode && $edit_data['activity_type']=='Workshop')?'selected':''; ?>>Workshop</option>
                                     <option value="Other" <?php echo ($edit_mode && $edit_data['activity_type']=='Other')?'selected':''; ?>>Lainnya</option>
                                 </select>
                             </div>
+
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Status</label>
                                 <select name="status" class="form-select">
@@ -178,24 +191,36 @@ $activities = $activity->read();
                                 </select>
                             </div>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label fw-bold">Link Video YouTube *</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-danger text-white"><i class="fab fa-youtube"></i></span>
+                                <span class="input-group-text bg-danger text-white">
+                                    <i class="fab fa-youtube"></i>
+                                </span>
                                 <input type="url" class="form-control" name="link" required
                                        placeholder="https://www.youtube.com/watch?v=..."
-                                       value="<?php echo $edit_mode ? htmlspecialchars($edit_data['link'] ?? '') : ''; ?>">
+                                       value="<?php echo $edit_mode ? htmlspecialchars($edit_data['link']) : ''; ?>">
                             </div>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Deskripsi</label>
-                            <textarea class="form-control" name="description" rows="4"><?php echo $edit_mode ? htmlspecialchars($edit_data['description']) : ''; ?></textarea>
+                            <textarea class="form-control" name="description" rows="4"><?php 
+                                echo $edit_mode ? htmlspecialchars($edit_data['description']) : ''; 
+                            ?></textarea>
                         </div>
-                        <button type="submit" name="<?php echo $edit_mode ? 'update_activity' : 'add_activity'; ?>" class="btn btn-primary px-4">Simpan</button>
+
+                        <button type="submit" name="<?php echo $edit_mode ? 'update_activity' : 'add_activity'; ?>" class="btn btn-primary px-4">
+                            Simpan
+                        </button>
                     </form>
                 </div>
             </div>
+
         <?php else: ?>
+
+            <!-- TABEL DATA AKTIVITAS -->
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <div class="table-responsive">
@@ -212,75 +237,47 @@ $activities = $activity->read();
                                 <?php if($activities->rowCount() > 0): ?>
                                     <?php while($row = $activities->fetch(PDO::FETCH_ASSOC)): ?>
                                     <tr>
-                                        <td>
-                                            <strong><?php echo htmlspecialchars($row['title']); ?></strong><br>
-                                            <small class="text-muted">
-                                                <span class="badge bg-light text-dark">
-                                                    <?php 
-                                                    $types = [
-                                                        'Research' => 'Penelitian',
-                                                        'Conference' => 'Konferensi',
-                                                        'Seminar' => 'Seminar',
-                                                        'Workshop' => 'Workshop',
-                                                        'Other' => 'Lainnya'
-                                                    ];
-                                                    echo $types[$row['activity_type']] ?? $row['activity_type'];
-                                                    ?>
-                                                </span>
-                                            </small>
-                                        </td>
-                                        <td>
-                                            <small><?php echo date('d M Y', strtotime($row['activity_date'])); ?></small><br>
-                                            <span class="badge bg-<?php 
-                                                echo $row['status'] == 'completed' ? 'success' : 
-                                                    ($row['status'] == 'ongoing' ? 'warning' : 'info'); 
-                                            ?>">
-                                                <?php 
-                                                $statuses = [
-                                                    'completed' => 'Selesai',
-                                                    'ongoing' => 'Berlangsung',
-                                                    'planned' => 'Direncanakan'
-                                                ];
-                                                echo $statuses[$row['status']] ?? $row['status'];
-                                                ?>
-                                            </span>
-                                        </td>
+                                        <td><strong><?php echo htmlspecialchars($row['title']); ?></strong></td>
+                                        <td><?php echo date('d M Y', strtotime($row['activity_date'])); ?></td>
                                         <td>
                                             <?php if(!empty($row['link'])): ?>
-                                                <a href="<?php echo htmlspecialchars($row['link']); ?>" target="_blank" class="btn btn-sm btn-outline-danger">
-                                                    <i class="fab fa-youtube"></i> Lihat Video
+                                                <a href="<?php echo htmlspecialchars($row['link']); ?>" target="_blank"
+                                                   class="btn btn-sm btn-outline-danger">
+                                                   <i class="fab fa-youtube"></i> Buka Link
                                                 </a>
-                                            <?php else: ?> - <?php endif; ?>
+                                            <?php else: ?>
+                                                -
+                                            <?php endif; ?>
                                         </td>
                                         <td>
                                             <div class="btn-group">
-                                                <a href="admin_activity.php?action=edit&id=<?php echo $row['activity_id']; ?>" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
-                                                <a href="admin_activity.php?delete_id=<?php echo $row['activity_id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Hapus aktivitas ini?')"><i class="fas fa-trash"></i></a>
+                                                <a href="admin_activity.php?action=edit&id=<?php echo $row['activity_id']; ?>"
+                                                   class="btn btn-sm btn-outline-primary">
+                                                   <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="admin_activity.php?delete_id=<?php echo $row['activity_id']; ?>"
+                                                   class="btn btn-sm btn-outline-danger"
+                                                   onclick="return confirm('Hapus aktivitas ini?')">
+                                                   <i class="fas fa-trash"></i>
+                                                </a>
                                             </div>
                                         </td>
                                     </tr>
                                     <?php endwhile; ?>
-                                <?php else: ?>
-                                    <tr>
-                                        <td colspan="4" class="text-center py-5 text-muted">
-                                            <i class="fas fa-calendar-alt fa-2x mb-3"></i><br>
-                                            Belum ada aktivitas
-                                        </td>
-                                    </tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
+
         <?php endif; ?>
     </div>
 </div>
 
 <style>
-    .sidebar-header { text-align: center; padding: 1rem; border-bottom: 1px solid #06305aff; margin-bottom: 1rem; }
-    .admin-container { background-color: #06305aff; min-height: 100vh; }
-    .table th { background-color: #06305aff; font-weight: 600; }
+    .sidebar-header { text-align: center; padding: 1rem; border-bottom: 1px solid #dee2e6; margin-bottom: 1rem; }
+    .admin-container { background-color: #f8f9fa; min-height: 100vh; }
 </style>
 
 <?php include_once 'includes/footer.php'; ?>

@@ -146,7 +146,7 @@ $all_members = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
                 <div class="text-center mt-5">
             <a href="index.php#news" class="btn btn-outline-primary px-4 rounded-pill">
-                ← Kembali ke Home
+                ← Kembali ke Beranda
             </a>
         </div>
     </div>

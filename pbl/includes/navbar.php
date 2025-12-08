@@ -211,7 +211,7 @@ body {
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto">
-                <li class="nav-item"><a class="nav-link" href="index.php">Rumah</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.php">Beranda</a></li>
                 <li class="nav-item"><a class="nav-link" href="index.php#about">Tentang</a></li>
                 <li class="nav-item"><a class="nav-link" href="index.php#activities">Aktivitas</a></li>
                 <li class="nav-item"><a class="nav-link" href="visitor_booking.php">Peminjaman</a></li>

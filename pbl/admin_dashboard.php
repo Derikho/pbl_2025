@@ -159,7 +159,7 @@ $active_bookings = $booking->getActiveBookings();
                     </div>
                     <div class="stats-info">
                         <h3><?php echo $active_bookings; ?></h3>
-                        <p>Peminjaman Aktif</p>
+                        <p>Peminjam Aktif</p>
                     </div>
                 </div>
             </div>

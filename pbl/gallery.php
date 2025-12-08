@@ -91,9 +91,7 @@ $filter_buttons = [
         
         <?php if(isset($_SESSION['loggedin']) && $_SESSION['role'] === 'admin'): ?>
         <div class="mt-3">
-            <a href="admin_gallery.php" class="btn btn-outline-light btn-sm">
-                <i class="fas fa-cog me-1"></i> Kelola Galeri
-            </a>
+           
         </div>
         <?php endif; ?>
     </div>
@@ -155,10 +153,10 @@ $filter_buttons = [
                 // Untuk display
                 $category_display_text = $category_display[$category_db] ?? ucfirst($category_db);
                 $description = htmlspecialchars($item['description'] ?? '');
-                $short_description = !empty($description) ? (strlen($description) > 100 ? substr($description, 0, 100) . '...' : $description) : '<span class="fst-italic text-muted">Tidak ada deskripsi</span>';
+                $short_description = !empty($description) ? (strlen($description) > 100 ? substr($description, 0, 100) . '...' : $description) :
                 
                 // Tentukan filter category untuk data attribute
-                $filter_category = 'umum';
+                $filter_category = '';
                 foreach($filter_buttons as $filter_key => $filter_name) {
                     if($category_db === $filter_key || 
                        ($filter_key === 'acara' && in_array($category_db, ['events', 'event'])) ||
@@ -221,7 +219,7 @@ $filter_buttons = [
                             </small>
                             <small class="text-primary cursor-pointer" 
                                    onclick="showImageModal('<?php echo htmlspecialchars($item['image_url']); ?>', '<?php echo htmlspecialchars($item['title']); ?>', '<?php echo addslashes($item['description'] ?? ''); ?>')">
-                                Lihat <i class="fas fa-expand ms-1"></i>
+                                 
                             </small>
                         </div>
                     </div>
@@ -266,9 +264,7 @@ $filter_buttons = [
             </a>
             
             <?php if(isset($_SESSION['loggedin']) && $_SESSION['role'] === 'admin'): ?>
-            <a href="admin_gallery.php" class="btn btn-primary px-4 rounded-pill">
-                <i class="fas fa-cog me-2"></i> Kelola Galeri
-            </a>
+            
             <?php endif; ?>
         </div>
         

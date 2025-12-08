@@ -119,7 +119,7 @@ $gallery_items = $gallery->read();
             <h5 class="mb-0">Navigasi</h5>
         </div>
         <ul class="sidebar-menu">
-            <li class="menu-item"><a href="admin_dashboard.php"><i class="fas fa-tachometer-alt me-2"></i><span>Dasbor</span></a></li>
+            <li class="menu-item"><a href="admin_dashboard.php"><i class="fas fa-tachometer-alt me-2"></i><span>Dashboard</span></a></li>
             <li class="menu-item"><a href="admin_users.php"><i class="fas fa-users-cog me-2"></i><span>Pengguna</span></a></li>
             <li class="menu-item"><a href="admin_partners.php"><i class="fas fa-handshake me-2"></i><span>Mitra</span></a></li>
             <li class="menu-item"><a href="admin_team.php"><i class="fas fa-users me-2"></i><span>Tim</span></a></li>
@@ -138,7 +138,7 @@ $gallery_items = $gallery->read();
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h1 class="h3 mb-0 text-gray-800">Manajemen Galeri</h1>
-                    <p class="text-muted small">Kelola Foto & Dokumentasi LET Lab</p>
+                    <p class="text-muted small">Kelola foto & dokumentasi Lab LET</p>
                 </div>
                 <?php if(!$show_form): ?>
                     <a href="admin_gallery.php?action=add" class="btn btn-primary">
