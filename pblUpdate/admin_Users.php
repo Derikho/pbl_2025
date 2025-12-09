@@ -141,7 +141,7 @@ $users = $user->read();
         </div>
         <ul class="sidebar-menu">
             <li class="menu-item">
-                <a href="admin_dashboard.php"><i class="fas fa-tachometer-alt me-2"></i><span>Dashboard</span></a>
+                <a href="admin_dashboard.php"><i class="fas fa-tachometer-alt me-2"></i><span>Dasbor</span></a>
             </li>
             <li class="menu-item active"><a href="admin_users.php"><i class="fas fa-users-cog me-2"></i><span>Pengguna</span></a></li>
 
