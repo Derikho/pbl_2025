@@ -570,7 +570,7 @@ if(file_exists('models/Activity.php')){
         
         <div class="text-center mt-4">
             <a href="daftar_team.php" class="btn btn-outline-primary px-4 rounded-pill  ">
-                <i class="fas fa-users me-2"></i>Lihat Semua Tim <i class="fas fa-arrow-right ms-2"></i>
+                Lihat Semua Tim <i class="fas fa-arrow-right ms-2"></i>
             </a>
         </div>
     </div>
@@ -745,12 +745,7 @@ if(file_exists('models/Activity.php')){
         </div>
 
         <div class="text-center mt-4">
-<<<<<<< HEAD:pblUpdate/index.php
             <a href="news_detail.php" class="btn btn-outline-primary px-4 rounded-pill">Lihat Semua Berita <i class="fas fa-arrow-right ms-2"></i></a>
-=======
-            <a href="news_detail.php" class="btn btn-outline-primary px-4 rounded-pill">
-                Lihat Semua Berita <i class="fas fa-arrow-right ms-2"></i></a>
->>>>>>> 7f3f250c92db521f0cc78e8853276ea3d0dcafa7:pbl/index.php
         </div>
     </div>
 </section>
@@ -1371,7 +1366,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <?php if(isset($active_items) && count($active_items) > 0): ?>
         <div class="text-center mt-4">
             <a href="gallery.php" class="btn btn-outline-primary px-4 rounded-pill">
-                <i class="fas fa-images me-2"></i> Lihat Semua Galeri <i class="fas fa-arrow-right ms-2"></i>
+                Lihat Semua Galeri <i class="fas fa-arrow-right ms-2"></i>
             </a>
             
             
