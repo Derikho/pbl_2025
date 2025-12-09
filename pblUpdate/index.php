@@ -745,12 +745,7 @@ if(file_exists('models/Activity.php')){
         </div>
 
         <div class="text-center mt-4">
-<<<<<<< HEAD:pblUpdate/index.php
             <a href="news_detail.php" class="btn btn-outline-primary px-4 rounded-pill">Lihat Semua Berita <i class="fas fa-arrow-right ms-2"></i></a>
-=======
-            <a href="news_detail.php" class="btn btn-outline-primary px-4 rounded-pill">
-                Lihat Semua Berita <i class="fas fa-arrow-right ms-2"></i></a>
->>>>>>> 7f3f250c92db521f0cc78e8853276ea3d0dcafa7:pbl/index.php
         </div>
     </div>
 </section>
