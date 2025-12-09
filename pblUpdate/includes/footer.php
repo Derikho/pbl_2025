@@ -130,7 +130,7 @@
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-gradient-danger text-white border-0 py-3">
                 <h6 class="modal-title fw-bold mb-0">
-                    <i class="fas fa-sign-out-alt me-2"></i>Konfirmasi Logout
+                    <i class="fas fa-sign-out-alt me-2"></i>Konfirmasi Keluar
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>

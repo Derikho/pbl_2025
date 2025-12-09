@@ -200,7 +200,7 @@ include_once 'includes/header.php';
                     </div>
                     
                     <button type="submit" class="btn btn-login w-100 mb-3">
-                        <i class="fas fa-sign-in-alt me-2"></i> Login
+                        <i class="fas fa-sign-in-alt me-2"></i> Masuk
                     </button>
                     
                     <div class="text-center mt-4">
