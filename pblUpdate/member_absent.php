@@ -128,21 +128,8 @@ if(isset($_GET['logout'])){
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href=assets/css/style.css>
     <style>
-        :root {
-            --primary-color: #4f46e5;
-            --secondary-color: #7c3aed;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
         .attendance-container {
             max-width: 1200px;
             margin: 20px auto;
@@ -170,19 +157,6 @@ if(isset($_GET['logout'])){
             margin-bottom: 1.5rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             border-left: 5px solid var(--primary-color);
-        }
-        
-        .btn-primary-custom {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            border: none;
-            padding: 10px 25px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(79, 70, 229, 0.3);
         }
         
         .stats-grid {
@@ -309,45 +283,10 @@ if(isset($_GET['logout'])){
             align-items: center;
             justify-content: center;
         }
-        
-        .bg-primary-light {
-            background-color: #e0e7ff;
-        }
-        
-        .bg-success-light {
-            background-color: #d1fae5;
-        }
-        
-        .bg-warning-light {
-            background-color: #fef3c7;
-        }
-        
-        .bg-info-light {
-            background-color: #e0f2fe;
-        }
-        
-        .text-primary {
-            color: var(--primary-color) !important;
-        }
-        
-        .text-success {
-            color: var(--success-color) !important;
-        }
-        
-        .text-warning {
-            color: var(--warning-color) !important;
-        }
-        
-        .text-info {
-            color: #0ea5e9 !important;
-        }
     </style>
 </head>
 <body>
-    <!-- ============================================
-         HALAMAN UTAMA SETELAH LOGIN
-    ============================================ -->
-    <div class="attendance-container">
+    <div class="attendance-container bg-linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)">
         <!-- Header Profil -->
         <div class="profile-section">
             <div class="row align-items-center">
@@ -515,52 +454,47 @@ if(isset($_GET['logout'])){
             <div class="card-header">
                 <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Form Absensi Harian</h5>
             </div>
-            
-                        
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Keterangan Kehadiran *</label>
-                            <select class="form-select" name="keterangan" required>
-                                <option value="Hadir">Hadir</option>
-                                <option value="Terlambat">Terlambat</option>
-                                <option value="Izin">Izin</option>
-                                <option value="Sakit">Sakit</option>
-                                <option value="Dinas Luar">Dinas Luar</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Catatan Tambahan</label>
-                        <textarea class="form-control" name="catatan" rows="3" 
-                                  placeholder="Isi dengan kegiatan yang dilakukan atau alasan jika izin/sakit..."></textarea>
-                    </div>
-                    
-                    <div class="mb-4">
+
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12 mx-auto">
+
+                        <!-- Keterangan Kehadiran -->
+                        <label class="form-label fw-bold">Keterangan Kehadiran *</label>
+                        <select name="status" class="form-select mb-3 w-100">
+                            <option value="Hadir">Hadir</option>
+                            <option value="Izin">Izin</option>
+                            <option value="Sakit">Sakit</option>
+                        </select>
+
+                        <!-- Catatan -->
+                        <label class="form-label fw-bold">Catatan Tambahan</label>
+                        <textarea class="form-control mb-3 w-100" rows="3"
+                            placeholder="Isi dengan kegiatan yang dilakukan atau alasan jika izin/sakit..."></textarea>
+
+                        <!-- Upload Foto -->
                         <label class="form-label fw-bold">Foto Bukti Kehadiran (Opsional)</label>
-                        <div class="photo-upload-area mb-3" onclick="document.getElementById('photo_file').click()" 
-                             id="photoPreview">
-                            <div>
-                                <i class="fas fa-camera fa-3x text-muted mb-3"></i>
-                                <p class="text-muted mb-1">Klik untuk upload foto</p>
-                                <p class="text-muted small">Max 5MB | JPG, PNG, GIF</p>
-                            </div>
+
+                        <div class="border border-2 rounded p-4 text-center mb-4 w-100"
+                            style="border-style: dashed !important;">
+                            <i class="fas fa-camera fa-2x mb-2 text-secondary"></i>
+                            <p>Klik untuk upload foto</p>
+                            <p class="text-muted small mb-0">Max 5MB | JPG, PNG, GIF</p>
                         </div>
-                        <input type="file" class="form-control d-none" id="photo_file" name="photo_file" 
-                               accept="image/*" onchange="previewImage(this)">
-                    </div>
-                    
-                    <div class="d-grid">
-                        <button type="submit" name="submit_attendance" class="btn btn-primary-custom btn-lg">
+
+                        <!-- Submit -->
+                        <button class="btn btn-primary w-100 py-2">
                             <i class="fas fa-paper-plane me-2"></i> Submit Absensi
                         </button>
+
                     </div>
-                </form>
+                </div>
             </div>
         </div>
         <?php endif; ?>
-        
+
         <!-- Riwayat Absensi -->
-        <div class="card">
+        <div class="card col-12">
             <div class="card-header">
                 <h5 class="mb-0"><i class="fas fa-history me-2"></i>Riwayat Absensi 10 Terakhir</h5>
             </div>

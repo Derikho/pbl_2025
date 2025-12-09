@@ -16,6 +16,7 @@ if(isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true){
 
 // Include database & model
 include_once 'config/database.php';
+include_once 'models/User.php';
 
 $database = new Database();
 $db = $database->getConnection();
@@ -133,6 +134,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
 // 2. BARU TAMPILKAN HTML
 // -----------------------------------------------------------
+$page_title = "LET Lab - Login";
+include_once 'includes/header.php';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -144,220 +147,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #4f46e5;
-            --secondary-color: #7c3aed;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        .login-container {
-            max-width: 450px;
-            margin: 20px auto;
-        }
-        
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        
-        .card-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            padding: 2rem;
-            text-align: center;
-            border-bottom: none;
-        }
-        
-        .login-logo {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            color: white;
-        }
-        
-        .login-title {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        
-        .main-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: white;
-            margin-bottom: 0.5rem;
-            letter-spacing: 1px;
-        }
-        
-        .sub-title {
-            font-size: 1.2rem;
-            font-weight: 400;
-            color: rgba(255,255,255,0.9);
-            margin-bottom: 1rem;
-        }
-        
-        .admin-text {
-            font-size: 1rem;
-            color: rgba(255,255,255,0.8);
-            padding-top: 1rem;
-            border-top: 1px solid rgba(255,255,255,0.2);
-            margin-top: 1rem;
-        }
-        
-        .card-body {
-            padding: 2rem;
-        }
-        
-        .form-label {
-            font-weight: 500;
-            color: #374151;
-            margin-bottom: 0.5rem;
-        }
-        
-        .input-group-text {
-            background-color: #f9fafb;
-            border-right: none;
-            color: #6b7280;
-        }
-        
-        .form-control {
-            border-left: none;
-            padding-left: 0;
-        }
-        
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25);
-        }
-        
-        .btn-login {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            border: none;
-            padding: 12px;
-            font-weight: 600;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
-        
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(79, 70, 229, 0.3);
-        }
-        
-        .form-check-input:checked {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        .back-link {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.3s;
-        }
-        
-        .back-link:hover {
-            color: var(--secondary-color);
-            text-decoration: underline;
-        }
-        
-        .demo-credentials {
-            background: #f0f9ff;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 1.5rem;
-            border-left: 4px solid #0ea5e9;
-        }
-        
-        .role-info {
-            background: #f8fafc;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 1rem;
-            border-left: 4px solid var(--primary-color);
-        }
-        
-        .demo-credentials h6,
-        .role-info h6 {
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-        }
-        
-        .demo-credentials p,
-        .role-info p {
-            font-size: 0.85rem;
-            margin-bottom: 0.25rem;
-            color: #6b7280;
-        }
-        
-        .demo-credentials code {
-            background: #e5e7eb;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            color: #1f2937;
-        }
-        
-        .footer-text {
-            text-align: center;
-            margin-top: 2rem;
-            color: #6b7280;
-            font-size: 0.85rem;
-        }
-        
-        .debug-info {
-            background: #fef3c7;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 1rem;
-            border-left: 4px solid #f59e0b;
-            font-size: 0.8rem;
-            color: #92400e;
-        }
-        
-        @media (max-width: 768px) {
-            .login-container {
-                margin: 10px auto;
-                padding: 0 15px;
-            }
-            
-            .card-body {
-                padding: 1.5rem;
-            }
-            
-            .card-header {
-                padding: 1.5rem;
-            }
-            
-            .main-title {
-                font-size: 1.5rem;
-            }
-            
-            .sub-title {
-                font-size: 1rem;
-            }
-        }
-    </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="card">
-            <div class="card-header">
-                <div class="login-logo">
+    <div class="login-wrapper">
+        <div class="login-container">
+            <div class="login-header text-center mb-5">
+                <div class="login-logo mb-4">
                     <i class="fas fa-graduation-cap"></i>
                 </div>
                 <div class="login-title">
@@ -381,11 +176,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                
                 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                     <div class="mb-4">
-                        <label for="username" class="form-label">Username / NIM</label>
+                        <label for="username" class="form-label">Username</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-user"></i></span>
                             <input type="text" class="form-control" id="username" name="username" 
-                                   placeholder="Masukkan username atau NIM" required
+                                   placeholder="Masukkan username" required
                                    value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : ''; ?>">
                         </div>
                     </div>
@@ -408,8 +203,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                         <i class="fas fa-sign-in-alt me-2"></i> Login
                     </button>
                     
-                   
-                    
                     <div class="text-center mt-4">
                         <a href="index.php" class="back-link">
                             <i class="fas fa-arrow-left me-1"></i> Kembali ke Halaman Utama
@@ -417,7 +210,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     </div>
                 </form>
                 
-                <div class="footer-text">
+                <div class="footer-text text-center">
                     <small>
                         <i class="fas fa-shield-alt me-1"></i>
                         Sistem Terintegrasi &copy; <?php echo date('Y'); ?> LET Lab
