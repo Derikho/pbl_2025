@@ -50,7 +50,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $keterangan = $_POST['keterangan'] ?? 'Hadir';
         $catatan = $_POST['catatan'] ?? '';
         
-        if(empty($matakuliah)){
+        if(empty($keterangan)){
             $attendance_error = "❌ Mata kuliah/kegiatan harus diisi!";
         } else {
             // Upload foto jika ada
@@ -443,55 +443,64 @@ if(isset($_GET['logout'])){
                 <div class="stat-label">Tepat Waktu</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number"><?php echo $stats['rata_jam_kerja'] ?? 0; ?>h</div>
+                <div class="stat-number"><?php echo $stats['rata_jam_kerja'] ?? 0; ?> Jam</div>
                 <div class="stat-label">Rata-rata Jam Kerja</div>
             </div>
         </div>
         
         <!-- Form Absensi (hanya tampil jika belum absen hari ini) -->
         <?php if(!$today_attendance): ?>
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Form Absensi Harian</h5>
-            </div>
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Form Absensi Harian</h5>
+    </div>
 
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-12 mx-auto">
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-md-12 mx-auto">
 
-                        <!-- Keterangan Kehadiran -->
-                        <label class="form-label fw-bold">Keterangan Kehadiran *</label>
-                        <select name="status" class="form-select mb-3 w-100">
-                            <option value="Hadir">Hadir</option>
-                            <option value="Izin">Izin</option>
-                            <option value="Sakit">Sakit</option>
-                        </select>
+                <!-- Keterangan Kehadiran -->
+                <label class="form-label fw-bold">Keterangan Kehadiran *</label>
+                <select name="keterangan" class="form-select mb-3 w-100">
+                    <option value="Hadir">Hadir</option>
+                    <option value="Izin">Izin</option>
+                    <option value="Sakit">Sakit</option>
+                </select>
 
-                        <!-- Catatan -->
-                        <label class="form-label fw-bold">Catatan Tambahan</label>
-                        <textarea class="form-control mb-3 w-100" rows="3"
-                            placeholder="Isi dengan kegiatan yang dilakukan atau alasan jika izin/sakit..."></textarea>
+                <!-- Catatan -->
+                <label class="form-label fw-bold">Catatan Tambahan</label>
+                <textarea name="catatan" class="form-control mb-3 w-100" rows="3"
+                    placeholder="Isi dengan kegiatan yang dilakukan atau alasan jika izin/sakit..."></textarea>
 
-                        <!-- Upload Foto -->
-                        <label class="form-label fw-bold">Foto Bukti Kehadiran (Opsional)</label>
+                <!-- Upload Foto -->
+                <label class="form-label fw-bold">Foto Bukti Kehadiran (Opsional)</label>
 
-                        <div class="border border-2 rounded p-4 text-center mb-4 w-100"
-                            style="border-style: dashed !important;">
-                            <i class="fas fa-camera fa-2x mb-2 text-secondary"></i>
-                            <p>Klik untuk upload foto</p>
-                            <p class="text-muted small mb-0">Max 5MB | JPG, PNG, GIF</p>
-                        </div>
-
-                        <!-- Submit -->
-                        <button class="btn btn-primary w-100 py-2">
-                            <i class="fas fa-paper-plane me-2"></i> Submit Absensi
-                        </button>
-
+                <div class="photo-upload-area mb-3" onclick="document.getElementById('photo_file').click()" 
+                        id="photoPreview">
+                    <div>
+                        <i class="fas fa-camera fa-3x text-muted mb-3"></i>
+                        <p class="text-muted mb-1">Klik untuk upload foto</p>
+                        <p class="text-muted small">Max 5MB | JPG, PNG, GIF</p>
                     </div>
                 </div>
+                <input type="file" class="form-control d-none" id="photo_file" name="photo_file" 
+                    accept="image/*" onchange="previewImage(this)">
+
+                <!-- Submit -->
+                <div class="d-grid">
+                    <button type="submit" name="submit_attendance" class="btn btn-primary w-100 py-2">
+                        <i class="fas fa-paper-plane me-2"></i> Submit Absensi
+                    </button>
+                </div>
+
             </div>
         </div>
-        <?php endif; ?>
+        </form>
+    </div>
+</div>
+<?php endif; ?>
+
 
         <!-- Riwayat Absensi -->
         <div class="card col-12">
